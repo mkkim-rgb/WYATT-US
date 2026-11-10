@@ -41,6 +41,7 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
 #tabTotal .tot-bmeta{font-size:11px;color:#6b7280}
 #tabTotal .tot-blbl{font-size:11px;color:#6b7280;margin-top:14px}
 #tabTotal .tot-bnum{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;min-height:30px}
+#tabTotal .tot-bnum2{font-size:18px;color:#374151;margin-top:-2px}
 #tabTotal .tot-bgo{font-size:11px;color:#d97070;font-weight:700;margin-top:6px}
 #tabTotal .tot-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
 #tabTotal .tot-back{all:unset;cursor:pointer;font-size:12px;color:#6b7280}
@@ -83,11 +84,13 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
       <button class="tot-bcard" type="button" onclick="totPick('UN')">
         <span class="tot-bname">어노브</span><span class="tot-bmeta">UNOVE · 세포라 · 아마존 · 틱톡샵</span>
         <span class="tot-blbl">이번 달 누적 매출</span><span class="tot-bnum" id="totBnumUN">—</span>
+        <span class="tot-blbl">지난달 누적 매출</span><span class="tot-bnum tot-bnum2" id="totBlastUN">—</span>
         <span class="tot-bgo">채널별 매출 보기 →</span>
       </button>
       <button class="tot-bcard" type="button" onclick="totPick('DF')">
         <span class="tot-bname">닥터포헤어</span><span class="tot-bmeta">Dr.FORHAIR · 세포라 · 아마존 · 틱톡샵</span>
         <span class="tot-blbl">이번 달 누적 매출</span><span class="tot-bnum" id="totBnumDF">—</span>
+        <span class="tot-blbl">지난달 누적 매출</span><span class="tot-bnum tot-bnum2" id="totBlastDF">—</span>
         <span class="tot-bgo">채널별 매출 보기 →</span>
       </button>
     </div>
@@ -288,7 +291,7 @@ function totKpi_(b) {
   var asOf = totBrandAsof_(b); if (!asOf) return null;
   var y = +asOf.slice(0, 4), mo = +asOf.slice(5, 7), dd = +asOf.slice(8, 10);
   var cur = asOf.slice(0, 7), prev = (mo === 1 ? y - 1 : y) + '-' + String(mo === 1 ? 12 : mo - 1).padStart(2, '0');
-  var k = { asOf:asOf, mtd:0, prev:0, last:0, ytd:0 };
+  var k = { asOf:asOf, prevYm:prev, mtd:0, prev:0, last:0, ytd:0 };
   TOT_CH.forEach(function(c) {
     var m = (TOT.daily || {})[b + '|' + c] || {};
     for (var d in m) {
@@ -347,6 +350,8 @@ function totRender_() {
   var errAll = TOT.err.all;
   ['UN', 'DF'].forEach(function(x) {
     var k = TOT.daily ? totKpi_(x) : null, el = document.getElementById('totBnum' + x);
+    var el2 = document.getElementById('totBlast' + x);
+    if (el2) el2.innerHTML = k ? totUsd_(k.last) + ' <span class="tot-bmeta">' + (+k.prevYm.slice(5, 7)) + '월 전체</span>' : (TOT.loading ? '불러오는 중…' : '—');
     if (el) el.innerHTML = k ? totUsd_(k.mtd) + ' <span class="tot-bmeta">' + (+k.asOf.slice(5, 7)) + '/' + (+k.asOf.slice(8, 10)) + '까지</span>' : (TOT.loading ? '불러오는 중…' : '—');
   });
   var mp = document.getElementById('totMsgPick');
