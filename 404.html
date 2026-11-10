@@ -44,6 +44,12 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
 #tabTotal .tot-bnum2{font-size:14px;font-weight:600;color:#9ca3af;margin-top:-2px;min-height:0}
 #tabTotal .tot-bnum2 .tot-won,#tabTotal .tot-bnum2 .tot-bmeta{color:#b5bac2}
 #tabTotal .tot-won{font-size:.62em;font-weight:600;color:#6b7280}
+#tabTotal .tot-filter{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px;margin:0 0 12px}
+#tabTotal .tot-flbl{font-size:12px;font-weight:800}
+#tabTotal .tot-dates{font-size:12px;color:#6b7280}
+#tabTotal .tot-dates input{font:inherit;font-size:12px;border:1px solid #e5e7eb;border-radius:6px;padding:4px 6px;color:#1b1b1b}
+#tabTotal .tot-rsum{flex-basis:100%;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;color:#6b7280}
+#tabTotal .tot-rsum b{color:#1b1b1b}
 #tabTotal .tot-bgo{font-size:11px;color:#d97070;font-weight:700;margin-top:6px}
 #tabTotal .tot-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
 #tabTotal .tot-back{all:unset;cursor:pointer;font-size:12px;color:#6b7280}
@@ -113,10 +119,16 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
       <div class="tot-kpi"><div class="l">지난달 전체</div><div class="v" id="totKlast">—</div></div>
       <div class="tot-kpi"><div class="l">올해 누적</div><div class="v" id="totKytd">—</div></div>
     </div>
+    <div class="tot-filter">
+      <span class="tot-flbl">기간</span>
+      <div class="tot-seg"><button type="button" data-totr="30d" onclick="totRng('30d')">최근 30일</button><button type="button" data-totr="90d" onclick="totRng('90d')">최근 90일</button><button type="button" data-totr="mtd" onclick="totRng('mtd')">이번 달</button><button type="button" data-totr="lm" onclick="totRng('lm')">지난달</button><button type="button" data-totr="ytd" onclick="totRng('ytd')">올해</button><button type="button" data-totr="all" onclick="totRng('all')">전체</button></div>
+      <span class="tot-dates"><input type="date" id="totFrom" onchange="totRngDate()"> ~ <input type="date" id="totTo" onchange="totRngDate()"></span>
+      <div class="tot-rsum" id="totRngSum"></div>
+    </div>
     <div class="tot-card">
       <div class="tot-card-head"><h3>전체 월 매출</h3>
         <div class="tot-legend"><span><i style="background:#1D2847"></i>세포라</span><span><i style="background:#E0A040"></i>아마존</span><span><i style="background:#d97070"></i>틱톡샵</span></div></div>
-      <div class="tot-note">채널 매출을 쌓은 월 합계예요. 이번 달은 기준일까지 누적이에요.</div>
+      <div class="tot-note">채널 매출을 쌓은 월 합계예요. 위 기간 필터를 따르고, 이번 달은 기준일까지 누적이에요.</div>
       <div class="tot-chart" id="totMonthly"></div>
     </div>
     <div class="tot-top" style="margin-top:18px;margin-bottom:0">
@@ -149,7 +161,7 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
       <div><b>아마존</b> — 어노브: UN_US_Sales_dashboard_raw 「아마존내부_매출트래픽_RAW」 일 매출(셀러센트럴, PT). sell-in 데이터가 들어오기 전까지 sell-out이에요. 닥터포헤어: DF_Sales_dashboard_raw 「아마존_주문_RAW」 sell-in 열을 시차 일자(PT)별 합계.</div>
       <div><b>틱톡샵</b> — 어노브: 틱톡샵_RAW_데이터_UN-US 「매출_순sellout_daily」 순매출(PST, 9/29~). 닥터포헤어: DF_Sales_dashboard_raw 「틱톡_일별_RAW」 셀인(6/1~).</div>
       <div><b>원화</b> — 괄호 안 원화는 세포라 대시보드 기준 환율로 날짜별 환산 후 합계 (2026-09-01부터 1,400원, 그 전 1,500원/달러).</div>
-      <div><b>주 단위</b> — 일요일~토요일, 막대에는 주 시작일(일요일). 일 단위는 최근 90일만 보여줘요.</div>
+      <div><b>주 단위</b> — 일요일~토요일, 막대에는 주 시작일(일요일). 그래프는 위 기간 필터 범위만 보여줘요(기본 올해).</div>
       <div>원본 시트를 로그인한 계정 권한으로 직접 읽어요. 시트 보기 권한이 없으면 그 채널은 비어 보여요.</div>
     </details>
   </div>
@@ -234,7 +246,7 @@ const TOT_LINK = {
        amazon:{ url:'https://df-us-dashboard.pages.dev/', label:'닥포 아마존 대시보드 ↗' },
        tiktok:{ url:'https://df-us-tts-dashboard.pages.dev/', label:'닥포 틱톡샵 대시보드 ↗' } }
 };
-const TOT = { brand:'', gran:'week', cur:(function(){ try { return localStorage.getItem('wyatt_cur') || 'USD'; } catch (e) { return 'USD'; } })(), daily:null, err:{}, at:0, loading:false };
+const TOT = { brand:'', gran:'week', rng:'ytd', from:'', to:'', cur:(function(){ try { return localStorage.getItem('wyatt_cur') || 'USD'; } catch (e) { return 'USD'; } })(), daily:null, err:{}, at:0, loading:false };
 
 function totDate_(v) {
   if (typeof v === 'number') return (v > 20000 && v < 80000) ? new Date(Date.UTC(1899, 11, 30) + Math.round(v) * 86400000).toISOString().slice(0, 10) : '';
@@ -292,14 +304,31 @@ function totWeek_(d) { var t = new Date(d + 'T00:00:00Z'); return new Date(t.get
 function totKey_(g, d) { return g === 'month' ? d.slice(0, 7) : g === 'week' ? totWeek_(d) : d; }
 function totAsof_(b, ch) { var m = (TOT.daily || {})[b + '|' + ch] || {}, a = ''; for (var d in m) if (d > a) a = d; return a; }
 function totBrandAsof_(b) { var a = ''; TOT_CH.forEach(function(c){ var x = totAsof_(b, c); if (x > a) a = x; }); return a; }
+// ── 기간 필터 (그래프·선택 기간 합계에만 적용. 위 KPI 4칸은 기준일 기준 고정) ──
+function totIn_(d) { return (!TOT.from || d >= TOT.from) && (!TOT.to || d <= TOT.to); }
+function totYmd_(t) { return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); }
+function totRange_(r, b) {
+  var a = totBrandAsof_(b) || totYmd_(new Date()), t = new Date(a + 'T00:00:00'), y = t.getFullYear(), m = t.getMonth();
+  var back = function(n){ var x = new Date(t); x.setDate(x.getDate() - n + 1); return totYmd_(x); };
+  if (r === '30d') return [back(30), a];
+  if (r === '90d') return [back(90), a];
+  if (r === 'mtd') return [totYmd_(new Date(y, m, 1)), a];
+  if (r === 'lm') return [totYmd_(new Date(y, m - 1, 1)), totYmd_(new Date(y, m, 0))];
+  if (r === 'ytd') return [y + '-01-01', a];
+  if (r === 'all') return ['', ''];
+  return [TOT.from, TOT.to];
+}
+function totRng(r) { TOT.rng = r; if (r !== 'custom') { var x = totRange_(r, TOT.brand); TOT.from = x[0]; TOT.to = x[1]; } totRender_(); }
+function totRngDate() { TOT.rng = 'custom'; TOT.from = document.getElementById('totFrom').value || ''; TOT.to = document.getElementById('totTo').value || ''; if (TOT.from && TOT.to && TOT.from > TOT.to) { var z = TOT.from; TOT.from = TOT.to; TOT.to = z; } totRender_(); }
+window.totRng = totRng; window.totRngDate = totRngDate;
 function totSeries_(b, ch, g) {
   var m = (TOT.daily || {})[b + '|' + ch] || {}, o = {};
-  for (var d in m) { var k = totKey_(g, d); o[k] = (o[k] || 0) + m[d]; }
+  for (var d in m) { if (!totIn_(d)) continue; var k = totKey_(g, d); o[k] = (o[k] || 0) + m[d]; }
   return o;
 }
 function totSeriesW_(b, ch, g) {
   var m = (TOT.daily || {})[b + '|' + ch] || {}, o = {};
-  for (var d in m) { var k = totKey_(g, d); o[k] = (o[k] || 0) + m[d] * totFx_(d); }
+  for (var d in m) { if (!totIn_(d)) continue; var k = totKey_(g, d); o[k] = (o[k] || 0) + m[d] * totFx_(d); }
   return o;
 }
 function totKpi_(b) {
@@ -412,17 +441,24 @@ function totRender_() {
   var msg = document.getElementById('totMsg');
   msg.style.display = (errs.length || errAll) ? '' : 'none';
   msg.textContent = errAll ? '시트를 못 읽었어요 (' + errAll + ').' : errs.length ? '일부 채널을 새로 못 읽었어요 — ' + errs.join(' · ') + (TOT.daily ? ' (저장해 둔 값으로 보여요)' : '') : '';
+  // 기간 필터
+  if (TOT.rng !== 'custom') { var rr = totRange_(TOT.rng, b); TOT.from = rr[0]; TOT.to = rr[1]; }
+  document.querySelectorAll('#tabTotal [data-totr]').forEach(function(x){ x.classList.toggle('on', x.dataset.totr === TOT.rng); });
+  var fi = document.getElementById('totFrom'), ti = document.getElementById('totTo');
+  if (fi && document.activeElement !== fi) fi.value = TOT.from; if (ti && document.activeElement !== ti) ti.value = TOT.to;
+  var rs = { u:0, w:0, ch:{} };
+  TOT_CH.forEach(function(c){ var m = (TOT.daily || {})[b + '|' + c] || {}, u = 0, w = 0; for (var d in m) if (totIn_(d)) { u += m[d]; w += m[d] * totFx_(d); } rs.u += u; rs.w += w; rs.ch[c] = [u, w]; });
+  var rt = document.getElementById('totRngSum');
+  if (rt) rt.innerHTML = TOT.daily ? '<b>선택 기간 합계 ' + totBoth_(rs.u, rs.w) + '</b>' + TOT_CH.map(function(c){ return '<span>' + TOT_CH_NAME[c] + ' ' + totBothT_(rs.ch[c][0], rs.ch[c][1]) + '</span>'; }).join('') : '';
   // 전체 월 매출 (채널 쌓기)
   var months = {}, asOf = k ? k.asOf : '';
   var monthsW = {};
   TOT_CH.forEach(function(c){ var s = totSeries_(b, c, 'month'), sw = totSeriesW_(b, c, 'month'); for (var p in s) { (months[p] = months[p] || {})[c] = s[p]; (monthsW[p] = monthsW[p] || {})[c] = sw[p]; } });
-  totBars_(document.getElementById('totMonthly'), Object.keys(months).sort().filter(function(p){ return p >= '2026-01'; }).map(function(p){ return { p:p, v:months[p], w:monthsW[p], partial: asOf && p === asOf.slice(0, 7) }; }), TOT_CH, 'month');
+  totBars_(document.getElementById('totMonthly'), Object.keys(months).sort().map(function(p){ return { p:p, v:months[p], w:monthsW[p], partial: asOf && p === asOf.slice(0, 7) }; }), TOT_CH, 'month');
   // 채널별
   var today = new Date().toISOString().slice(0, 10);
   TOT_CH.forEach(function(c) {
     var s = totSeries_(b, c, TOT.gran), sw = totSeriesW_(b, c, TOT.gran), a = totAsof_(b, c), keys = Object.keys(s).sort();
-    if (TOT.gran === 'day') keys = keys.slice(-90);
-    if (TOT.gran === 'week') keys = keys.slice(-26);
     totBars_(document.getElementById('totCh_' + c), keys.map(function(p){ var v = {}, w = {}; v[c] = s[p]; w[c] = sw[p]; return { p:p, v:v, w:w, partial: a && totKey_(TOT.gran, a) === p && TOT.gran !== 'day' }; }), [c], TOT.gran);
     var as = document.getElementById('totAsof_' + c);
     if (as) as.textContent = a ? (+a.slice(5, 7)) + '/' + (+a.slice(8, 10)) + '까지' : '—';
