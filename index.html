@@ -158,11 +158,16 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
 // 로그인 — 민경 GCP(meta-organic-dashboard) OAuth 클라이언트. 리디렉션 URI = https://mkkim-rgb.github.io/WYATT-US/
 const GOOGLE_CLIENT_ID = '1044833406521-jg74ed6di5fgg6a5shmudm7q98gvf3tq.apps.googleusercontent.com';   // GCP meta-organic-dashboard
 const ALLOWED_DOMAIN = 'wyattcorp.com';
-const REDIRECT_URI = location.origin + location.pathname;
+// 주소 — /WYATT-US/ = 브랜드 선택, /WYATT-US/unove · /WYATT-US/drforhair = 브랜드 화면.
+// 하위 주소로 바로 들어오면 GitHub Pages가 404.html(이 파일과 같은 내용)을 보여 준다. 구글 로그인 리디렉션은 항상 /WYATT-US/ 로 받고 state 로 원래 주소를 되돌린다
+const BASE_PATH = (location.pathname.match(/^\/[^\/]+\//) || ['/'])[0];
+const BRAND_SLUG = { UN:'unove', DF:'drforhair' };
+function slugBrand_(path) { var s = (path || location.pathname).slice(BASE_PATH.length).replace(/\/+$/, '').toLowerCase(); for (var b in BRAND_SLUG) if (BRAND_SLUG[b] === s) return b; return ''; }
+const REDIRECT_URI = location.origin + BASE_PATH;
 function loadTabCache_(key) { try { const s = localStorage.getItem(key); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
 function startLogin() {
   const b = document.getElementById('btnLogin'); b.textContent = '이동 중...';
-  const q = new URLSearchParams({ client_id:GOOGLE_CLIENT_ID, redirect_uri:REDIRECT_URI, response_type:'token',
+  const q = new URLSearchParams({ client_id:GOOGLE_CLIENT_ID, redirect_uri:REDIRECT_URI, response_type:'token', state:location.pathname,
     scope:'email profile https://www.googleapis.com/auth/spreadsheets.readonly', hd:ALLOWED_DOMAIN, prompt:'select_account' });
   location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + q.toString();
 }
@@ -181,13 +186,14 @@ async function verify(token) {
 }
 function start(email) {
   document.getElementById('login').style.display = 'none';
+  TOT.brand = slugBrand_();
   document.getElementById('who').textContent = email || '';
   refreshTotal();
 }
 window.addEventListener('load', function() {
   if (location.hash.includes('access_token=')) {
-    const t = new URLSearchParams(location.hash.slice(1)).get('access_token');
-    history.replaceState(null, '', location.pathname);
+    const hp = new URLSearchParams(location.hash.slice(1)), t = hp.get('access_token'), st = hp.get('state') || '';
+    history.replaceState(null, '', st.indexOf(BASE_PATH) === 0 ? st : location.pathname);
     if (t) return verify(t);
   }
   if (new URLSearchParams(location.search).get('error')) { document.getElementById('loginErr').textContent = '로그인이 취소됐어요.'; history.replaceState(null, '', location.pathname); return; }
@@ -420,7 +426,15 @@ function totRender_() {
   var na = document.getElementById('totNote_amazon');
   if (na) na.textContent = b === 'UN' ? 'sell-out = 셀러센트럴 일 매출 (sell-in 데이터가 들어오면 바꿔요)' : 'sell-in = 아마존_주문_RAW sell-in 열 (시차 일자 PT)';
 }
-function totPick(b) { TOT.brand = b || ''; totRender_(); }
+function totPick(b, fromPop) {
+  TOT.brand = b || '';
+  if (!fromPop && typeof BASE_PATH !== 'undefined') {
+    var path = BASE_PATH + (TOT.brand ? BRAND_SLUG[TOT.brand] : '');
+    if (path !== location.pathname) history.pushState(null, '', path);
+  }
+  totRender_(); window.scrollTo(0, 0);
+}
+window.addEventListener('popstate', function(){ if (typeof slugBrand_ === 'function') totPick(slugBrand_(), true); });
 function totGran(g) { TOT.gran = g; totRender_(); }
 function totCur(c) { TOT.cur = c; try { localStorage.setItem('wyatt_cur', c); } catch (e) {} totRender_(); }
 window.totCur = totCur;

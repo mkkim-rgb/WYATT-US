@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WYATT US 매출</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;background:#F2F2F5;color:#1b1b1b;font-size:13px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 28px;background:#1D2847;color:#fff}
+.top b{font-size:14px;letter-spacing:.06em}
+.top .who{font-size:11px;opacity:.75}
+.top button{all:unset;cursor:pointer;font-size:11px;opacity:.75;margin-left:10px}
+#login{position:fixed;inset:0;background:#F2F2F5;display:flex;align-items:center;justify-content:center;z-index:10}
+#login .box{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:32px 36px;max-width:380px;width:calc(100% - 32px);text-align:center}
+#login h1{font-size:20px;margin:0 0 8px}
+#login p{font-size:12px;color:#6b7280;line-height:1.6;margin:0 0 20px}
+#login button{all:unset;cursor:pointer;background:#1D2847;color:#fff;font-weight:700;border-radius:8px;padding:10px 20px}
+#loginErr{font-size:11px;color:#dc2626;margin-top:12px;min-height:14px}
+@media (max-width:600px){#tabTotal{padding:16px!important}.top{padding:12px 16px}#tabTotal .tot-grid3{grid-template-columns:1fr!important}}
+</style>
+</head>
+<body>
+<div id="login"><div class="box">
+  <h1>WYATT US 매출</h1>
+  <p>와이어트 Google 계정으로 로그인하세요.<br>@wyattcorp.com 계정만 볼 수 있어요.</p>
+  <button type="button" id="btnLogin" onclick="startLogin()">Google 계정으로 로그인</button>
+  <div id="loginErr"></div>
+</div></div>
+<div class="top"><b>WYATT · US</b><span><span class="who" id="who"></span><button type="button" onclick="logout()">로그아웃</button></span></div>
+<!-- ═══ US 전체 매출 탭 (2026-11-09) — 브랜드 선택 → 세포라·아마존·틱톡샵 채널별 sell-in 매출. 원본 시트를 로그인 토큰으로 직접 읽는다 ═══ -->
+<style id="totStyle">
+#tabTotal{padding:18px 28px 48px;font-family:inherit;color:#1b1b1b}
+#tabTotal .tot-h1{font-size:22px;font-weight:800;margin:0 0 4px}
+#tabTotal .tot-sub{font-size:12px;color:#6b7280;margin:0 0 16px;line-height:1.6}
+#tabTotal .tot-brands{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;max-width:880px}
+#tabTotal .tot-bcard{all:unset;box-sizing:border-box;cursor:pointer;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:22px 24px;display:flex;flex-direction:column;gap:4px}
+#tabTotal .tot-bcard:hover{border-color:#1D2847;box-shadow:0 2px 10px rgba(29,40,71,.08)}
+#tabTotal .tot-bname{font-size:20px;font-weight:800}
+#tabTotal .tot-bmeta{font-size:11px;color:#6b7280}
+#tabTotal .tot-blbl{font-size:11px;color:#6b7280;margin-top:14px}
+#tabTotal .tot-bnum{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;min-height:30px}
+#tabTotal .tot-bnum2{font-size:14px;font-weight:600;color:#9ca3af;margin-top:-2px;min-height:0}
+#tabTotal .tot-bnum2 .tot-won,#tabTotal .tot-bnum2 .tot-bmeta{color:#b5bac2}
+#tabTotal .tot-won{font-size:.62em;font-weight:600;color:#6b7280}
+#tabTotal .tot-bgo{font-size:11px;color:#d97070;font-weight:700;margin-top:6px}
+#tabTotal .tot-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+#tabTotal .tot-back{all:unset;cursor:pointer;font-size:12px;color:#6b7280}
+#tabTotal .tot-back:hover{color:#111}
+#tabTotal .tot-seg{display:inline-flex;border:1px solid #e5e7eb;border-radius:6px;padding:2px;gap:2px;background:#fff}
+#tabTotal .tot-seg button{all:unset;cursor:pointer;padding:5px 12px;border-radius:4px;font-size:12px;color:#6b7280}
+#tabTotal .tot-seg button.on{background:#1D2847;color:#fff;font-weight:700}
+#tabTotal .tot-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:12px 0 16px}
+#tabTotal .tot-kpi{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:14px 16px}
+#tabTotal .tot-kpi .l{font-size:11px;color:#6b7280}
+#tabTotal .tot-kpi .v{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:4px}
+#tabTotal .tot-up{color:#059669}#tabTotal .tot-down{color:#dc2626}
+#tabTotal .tot-card{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+#tabTotal .tot-card h3{font-size:14px;font-weight:800;margin:0}
+#tabTotal .tot-card .tot-note{font-size:11px;color:#6b7280}
+#tabTotal .tot-card-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px}
+#tabTotal .tot-legend{display:flex;gap:12px;font-size:11px;color:#6b7280}
+#tabTotal .tot-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+#tabTotal .tot-chart{width:100%;min-height:220px}
+#tabTotal .tot-chart svg{display:block;width:100%;height:auto}
+#tabTotal .tot-chart text{font-size:10px;fill:#6b7280}
+#tabTotal .tot-grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;margin-top:12px}
+#tabTotal .tot-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;border-top:1px solid #f0f0f0;padding-top:8px;font-size:11px;color:#6b7280}
+#tabTotal .tot-foot a{color:#1D2847;font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+#tabTotal .tot-msg{font-size:11px;color:#8a5a00;background:rgba(255,196,0,.12);border-radius:6px;padding:8px 10px;margin:8px 0}
+#tabTotal .tot-empty{min-height:220px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#9ca3af}
+#tabTotal details{margin-top:18px;font-size:11px;color:#6b7280;line-height:1.7}
+#tabTotal details summary{cursor:pointer;font-weight:700;color:#374151}
+#tabTotal{max-width:1240px;margin:0 auto}
+#totPick{min-height:calc(100vh - 140px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+#totPick .tot-brands{width:100%;margin:0 auto}
+#totPick .tot-bcard{align-items:center;text-align:center}
+#totPick .tot-sub{max-width:560px}
+</style>
+<div id="tabTotal">
+  <div id="totPick">
+    <div class="tot-h1">US 전체 매출</div>
+    <p class="tot-sub">매출 sell-in 기준</p>
+    <div class="tot-brands">
+      <button class="tot-bcard" type="button" onclick="totPick('UN')">
+        <span class="tot-bname">어노브</span><span class="tot-bmeta">세포라 · 아마존 · 틱톡샵</span>
+        <span class="tot-blbl">이번 달 누적 매출</span><span class="tot-bnum" id="totBnumUN">—</span>
+        <span class="tot-blbl" style="color:#b5bac2;margin-top:10px">지난달 누적 매출</span><span class="tot-bnum tot-bnum2" id="totBlastUN">—</span>
+        <span class="tot-bgo">채널별 매출 보기 →</span>
+      </button>
+      <button class="tot-bcard" type="button" onclick="totPick('DF')">
+        <span class="tot-bname">닥터포헤어</span><span class="tot-bmeta">세포라 · 아마존 · 틱톡샵</span>
+        <span class="tot-blbl">이번 달 누적 매출</span><span class="tot-bnum" id="totBnumDF">—</span>
+        <span class="tot-blbl" style="color:#b5bac2;margin-top:10px">지난달 누적 매출</span><span class="tot-bnum tot-bnum2" id="totBlastDF">—</span>
+        <span class="tot-bgo">채널별 매출 보기 →</span>
+      </button>
+    </div>
+    <div id="totMsgPick" class="tot-msg" style="display:none;"></div>
+  </div>
+  <div id="totBrand" style="display:none;">
+    <div class="tot-top">
+      <button class="tot-back" type="button" onclick="totPick('')">← 브랜드 선택</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><div class="tot-seg"><button type="button" data-totc="USD" onclick="totCur('USD')">$ 달러</button><button type="button" data-totc="KRW" onclick="totCur('KRW')">₩ 원화</button></div><div class="tot-seg"><button type="button" data-totb="UN" onclick="totPick('UN')">어노브</button><button type="button" data-totb="DF" onclick="totPick('DF')">닥터포헤어</button></div></div>
+    </div>
+    <div class="tot-h1" id="totTitle">—</div>
+    <p class="tot-sub" id="totTake">—</p>
+    <div id="totMsg" class="tot-msg" style="display:none;"></div>
+    <div class="tot-kpis">
+      <div class="tot-kpi"><div class="l">이번 달 누적</div><div class="v" id="totKmtd">—</div></div>
+      <div class="tot-kpi"><div class="l">지난달 같은 기간</div><div class="v" id="totKprev">—</div></div>
+      <div class="tot-kpi"><div class="l">지난달 전체</div><div class="v" id="totKlast">—</div></div>
+      <div class="tot-kpi"><div class="l">올해 누적</div><div class="v" id="totKytd">—</div></div>
+    </div>
+    <div class="tot-card">
+      <div class="tot-card-head"><h3>전체 월 매출</h3>
+        <div class="tot-legend"><span><i style="background:#1D2847"></i>세포라</span><span><i style="background:#E0A040"></i>아마존</span><span><i style="background:#d97070"></i>틱톡샵</span></div></div>
+      <div class="tot-note">채널 매출을 쌓은 월 합계예요. 이번 달은 기준일까지 누적이에요.</div>
+      <div class="tot-chart" id="totMonthly"></div>
+    </div>
+    <div class="tot-top" style="margin-top:18px;margin-bottom:0">
+      <div class="tot-h1" style="font-size:16px;margin:0">판매채널별 매출</div>
+      <div class="tot-seg"><button type="button" data-totg="month" onclick="totGran('month')">월</button><button type="button" data-totg="week" onclick="totGran('week')">주</button><button type="button" data-totg="day" onclick="totGran('day')">일</button></div>
+    </div>
+    <div class="tot-grid3">
+      <div class="tot-card">
+        <div class="tot-card-head"><h3>세포라</h3><span class="tot-note" id="totAsof_sephora">—</span></div>
+        <div class="tot-note">sell-in = 주별로 받는 실매출 (매장 B&amp;M + 닷컴)</div>
+        <div class="tot-chart" id="totCh_sephora"></div>
+        <div class="tot-foot"><span>세부 대시보드</span><a id="totLink_sephora">—</a></div>
+      </div>
+      <div class="tot-card">
+        <div class="tot-card-head"><h3>아마존</h3><span class="tot-note" id="totAsof_amazon">—</span></div>
+        <div class="tot-note" id="totNote_amazon">—</div>
+        <div class="tot-chart" id="totCh_amazon"></div>
+        <div class="tot-foot"><span>세부 대시보드</span><a id="totLink_amazon" target="_blank" rel="noopener">—</a></div>
+      </div>
+      <div class="tot-card">
+        <div class="tot-card-head"><h3>틱톡샵</h3><span class="tot-note" id="totAsof_tiktok">—</span></div>
+        <div class="tot-note">sell-in = 순매출 (반품·할인·환불 차감)</div>
+        <div class="tot-chart" id="totCh_tiktok"></div>
+        <div class="tot-foot"><span>세부 대시보드</span><a id="totLink_tiktok" target="_blank" rel="noopener">—</a></div>
+      </div>
+    </div>
+    <details>
+      <summary>매출 기준과 출처</summary>
+      <div><b>세포라</b> — [UN_US] RAW_매출유입_Sephora / [DF_US] 세포라 대시보드 RAW의 실매출 탭 전체 매출($). 주 단위로 들어와서 다른 채널보다 늦을 수 있어요. 닥터포헤어는 7/26부터.</div>
+      <div><b>아마존</b> — 어노브: UN_US_Sales_dashboard_raw 「아마존내부_매출트래픽_RAW」 일 매출(셀러센트럴, PT). sell-in 데이터가 들어오기 전까지 sell-out이에요. 닥터포헤어: DF_Sales_dashboard_raw 「아마존_주문_RAW」 sell-in 열을 시차 일자(PT)별 합계.</div>
+      <div><b>틱톡샵</b> — 어노브: 틱톡샵_RAW_데이터_UN-US 「매출_순sellout_daily」 순매출(PST, 9/29~). 닥터포헤어: DF_Sales_dashboard_raw 「틱톡_일별_RAW」 셀인(6/1~).</div>
+      <div><b>원화</b> — 괄호 안 원화는 세포라 대시보드 기준 환율로 날짜별 환산 후 합계 (2026-09-01부터 1,400원, 그 전 1,500원/달러).</div>
+      <div><b>주 단위</b> — 일요일~토요일, 막대에는 주 시작일(일요일). 일 단위는 최근 90일만 보여줘요.</div>
+      <div>원본 시트를 로그인한 계정 권한으로 직접 읽어요. 시트 보기 권한이 없으면 그 채널은 비어 보여요.</div>
+    </details>
+  </div>
+</div>
+
+<script>
+// 로그인 — 민경 GCP(meta-organic-dashboard) OAuth 클라이언트. 리디렉션 URI = https://mkkim-rgb.github.io/WYATT-US/
+const GOOGLE_CLIENT_ID = '1044833406521-jg74ed6di5fgg6a5shmudm7q98gvf3tq.apps.googleusercontent.com';   // GCP meta-organic-dashboard
+const ALLOWED_DOMAIN = 'wyattcorp.com';
+// 주소 — /WYATT-US/ = 브랜드 선택, /WYATT-US/unove · /WYATT-US/drforhair = 브랜드 화면.
+// 하위 주소로 바로 들어오면 GitHub Pages가 404.html(이 파일과 같은 내용)을 보여 준다. 구글 로그인 리디렉션은 항상 /WYATT-US/ 로 받고 state 로 원래 주소를 되돌린다
+const BASE_PATH = (location.pathname.match(/^\/[^\/]+\//) || ['/'])[0];
+const BRAND_SLUG = { UN:'unove', DF:'drforhair' };
+function slugBrand_(path) { var s = (path || location.pathname).slice(BASE_PATH.length).replace(/\/+$/, '').toLowerCase(); for (var b in BRAND_SLUG) if (BRAND_SLUG[b] === s) return b; return ''; }
+const REDIRECT_URI = location.origin + BASE_PATH;
+function loadTabCache_(key) { try { const s = localStorage.getItem(key); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+function startLogin() {
+  const b = document.getElementById('btnLogin'); b.textContent = '이동 중...';
+  const q = new URLSearchParams({ client_id:GOOGLE_CLIENT_ID, redirect_uri:REDIRECT_URI, response_type:'token', state:location.pathname,
+    scope:'email profile https://www.googleapis.com/auth/spreadsheets.readonly', hd:ALLOWED_DOMAIN, prompt:'select_account' });
+  location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + q.toString();
+}
+function logout() { sessionStorage.removeItem('sephora_token'); sessionStorage.removeItem('sephora_auth'); location.reload(); }
+async function verify(token) {
+  const err = document.getElementById('loginErr'); err.textContent = '인증 확인 중...';
+  try {
+    const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers:{ Authorization:'Bearer ' + token } });
+    if (!res.ok) throw new Error('로그인이 만료됐어요. 다시 로그인해 주세요.');
+    const info = await res.json();
+    if (!info.email || !info.email.endsWith('@' + ALLOWED_DOMAIN)) { err.textContent = (info.email || '알 수 없는 계정') + ' — @' + ALLOWED_DOMAIN + ' 계정만 볼 수 있어요.'; return; }
+    sessionStorage.setItem('sephora_token', token);
+    sessionStorage.setItem('sephora_auth', JSON.stringify({ name:info.name || info.email, email:info.email, picture:info.picture || '' }));
+    start(info.email);
+  } catch (e) { sessionStorage.removeItem('sephora_token'); sessionStorage.removeItem('sephora_auth'); err.textContent = e.message; }
+}
+function start(email) {
+  document.getElementById('login').style.display = 'none';
+  TOT.brand = slugBrand_();
+  document.getElementById('who').textContent = email || '';
+  refreshTotal();
+}
+window.addEventListener('load', function() {
+  if (location.hash.includes('access_token=')) {
+    const hp = new URLSearchParams(location.hash.slice(1)), t = hp.get('access_token'), st = hp.get('state') || '';
+    history.replaceState(null, '', st.indexOf(BASE_PATH) === 0 ? st : location.pathname);
+    if (t) return verify(t);
+  }
+  if (new URLSearchParams(location.search).get('error')) { document.getElementById('loginErr').textContent = '로그인이 취소됐어요.'; history.replaceState(null, '', location.pathname); return; }
+  const t = sessionStorage.getItem('sephora_token');
+  if (t) verify(t);
+});
+</script>
+<script>
+// ═══ US 전체 매출 탭 (2026-11-09) — 브랜드(어노브·닥터포헤어) → 세포라·아마존·틱톡샵 채널별 sell-in 매출.
+//     원본 시트를 로그인 토큰(시트 읽기 전용)으로 직접 읽는다. 읽은 일 매출은 sephora_cache_total 에 두고 10분 뒤 다시 읽는다.
+//     다른 탭 데이터·값은 건드리지 않는다.
+const TOT_SRC = [
+  // 세포라 = 주별로 받는 실매출(전체 매출 E열) = sell-in
+  { brand:'UN', ch:'sephora', sheet:'1_Wbyc4AEpm_RHHhD-8yCmoXUc7AVoYjLOI1eAkuYoO0', ranges:['Raw_실매출!A2:E'], pick:function(v){ return totRows_(v[0], 0, 4); } },
+  { brand:'DF', ch:'sephora', sheet:'1oD4M0am6TG0eWlH-Wg2nWQPWW54MjgEd6QYBgM1gyO0', ranges:['RAW_실매출!A2:E'], pick:function(v){ return totRows_(v[0], 0, 4); } },
+  // 아마존 어노브 = 셀러센트럴 일 매출(PT) — sell-in 열이 시트에 생기기 전까지 sell-out
+  { brand:'UN', ch:'amazon', sheet:'1_nA-vUWePT8Ex70J5oIUB5xSrnjlHnPXUfCtf0gDPb0', ranges:['아마존내부_매출트래픽_RAW!A2:B'], pick:function(v){ return totRows_(v[0], 0, 1); } },
+  // 아마존 닥포 = 아마존_주문_RAW K열(시차 일자 PT) · R열(sell-in) — 행이 많아 열로 읽는다
+  { brand:'DF', ch:'amazon', sheet:'17TPlVzGcYBnQ9EiL_8wGybnB5fnSknf6HcgxWAG0Hkw', ranges:['아마존_주문_RAW!K2:K', '아마존_주문_RAW!R2:R'], cols:true,
+    pick:function(v){ var k = (v[0] && v[0][0]) || [], r = (v[1] && v[1][0]) || [], out = [];
+      for (var i = 0; i < k.length; i++) out.push([k[i], r[i]]);
+      return totRows_(out, 0, 1); } },
+  // 틱톡샵 닥포 = 틱톡_일별_RAW 셀인(C열)
+  { brand:'DF', ch:'tiktok', sheet:'17TPlVzGcYBnQ9EiL_8wGybnB5fnSknf6HcgxWAG0Hkw', ranges:['틱톡_일별_RAW!A2:C'], pick:function(v){ return totRows_(v[0], 0, 2, true); } },
+  // 틱톡샵 어노브 = 매출_순sellout_daily 순매출(F열) = sell-in
+  { brand:'UN', ch:'tiktok', sheet:'1etJb43LKLdVDEFICaULk2skXZ1mIKNgvlRw8JQNCeFw', ranges:['매출_순sellout_daily!A2:F'], pick:function(v){ return totRows_(v[0], 0, 5); } }
+];
+const TOT_CH = ['sephora', 'amazon', 'tiktok'];
+const TOT_CH_NAME = { sephora:'세포라', amazon:'아마존', tiktok:'틱톡샵' };
+const TOT_COLOR = { sephora:'#1D2847', amazon:'#E0A040', tiktok:'#d97070' };
+const TOT_BRAND = { UN:'어노브', DF:'닥터포헤어' };
+const TOT_LINK = {
+  UN:{ sephora:{ url:'https://ella-yh.github.io/Unove-Sephora-Dashboard/', label:'어노브 세포라 대시보드 ↗' },
+       amazon:{ url:'https://un-us-dashboard.pages.dev/', label:'어노브 아마존 대시보드 ↗' },
+       tiktok:{ url:'https://un-us-tts-dashboard.pages.dev/', label:'어노브 틱톡샵 대시보드 ↗' } },
+  DF:{ sephora:{ url:'https://mhlee-collab.github.io/df-us-sephora-dashboard/', label:'닥포 세포라 대시보드 ↗' },
+       amazon:{ url:'https://df-us-dashboard.pages.dev/', label:'닥포 아마존 대시보드 ↗' },
+       tiktok:{ url:'https://df-us-tts-dashboard.pages.dev/', label:'닥포 틱톡샵 대시보드 ↗' } }
+};
+const TOT = { brand:'', gran:'week', cur:(function(){ try { return localStorage.getItem('wyatt_cur') || 'USD'; } catch (e) { return 'USD'; } })(), daily:null, err:{}, at:0, loading:false };
+
+function totDate_(v) {
+  if (typeof v === 'number') return (v > 20000 && v < 80000) ? new Date(Date.UTC(1899, 11, 30) + Math.round(v) * 86400000).toISOString().slice(0, 10) : '';
+  var s = String(v == null ? '' : v).trim(), m;
+  if ((m = s.match(/^(\d{4})[-.\/]\s*(\d{1,2})[-.\/]\s*(\d{1,2})/))) return m[1] + '-' + m[2].padStart(2, '0') + '-' + m[3].padStart(2, '0');
+  if ((m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/))) return m[3] + '-' + m[1].padStart(2, '0') + '-' + m[2].padStart(2, '0');
+  return '';
+}
+function totNum_(v) {
+  if (typeof v === 'number') return v;
+  var n = parseFloat(String(v == null ? '' : v).replace(/[^0-9.\-]/g, ''));
+  return isNaN(n) ? 0 : n;
+}
+// rows → { 'YYYY-MM-DD': 합계 }. skipBlank = 값 칸이 비어 있으면 그 날은 아직 안 들어온 것으로 본다
+function totRows_(rows, di, vi, skipBlank) {
+  var m = {};
+  (rows || []).forEach(function(r) {
+    var d = totDate_(r[di]); if (!d) return;
+    var v = r[vi];
+    if (skipBlank && (v === '' || v == null)) return;
+    m[d] = (m[d] || 0) + totNum_(v);
+  });
+  return m;
+}
+async function totFetch_(src, token) {
+  var q = src.ranges.map(function(r){ return 'ranges=' + encodeURIComponent(r); }).join('&');
+  var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + src.sheet + '/values:batchGet?' + q +
+            '&valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER' + (src.cols ? '&majorDimension=COLUMNS' : '');
+  var res = await fetch(url, { headers:{ Authorization:'Bearer ' + token } });
+  if (!res.ok) throw new Error(res.status === 403 ? '시트 보기 권한 없음' : res.status === 401 ? '로그인 만료' : '시트 읽기 실패 (' + res.status + ')');
+  var js = await res.json();
+  var vals = (js.valueRanges || []).map(function(x){ return x.values || []; });
+  var m = src.pick(vals);
+  if (!Object.keys(m).length) throw new Error('행 없음');
+  return m;
+}
+async function totLoad_(force) {
+  if (TOT.loading) return;
+  if (!TOT.daily) { var c = loadTabCache_('sephora_cache_total'); if (c && c.daily) { TOT.daily = c.daily; TOT.at = c.at || 0; } }
+  if (!force && TOT.daily && Date.now() - TOT.at < 600000 && !Object.keys(TOT.err).length) return;   // 10분 안에는 다시 읽지 않는다
+  var token = sessionStorage.getItem('sephora_token');
+  if (!token) { TOT.err = { all:'로그인 토큰 없음' }; return; }
+  TOT.loading = true; totRender_();
+  var next = JSON.parse(JSON.stringify(TOT.daily || {})), err = {};
+  await Promise.all(TOT_SRC.map(async function(src) {
+    var key = src.brand + '|' + src.ch;
+    try { next[key] = await totFetch_(src, token); }
+    catch (e) { err[key] = e.message || String(e); console.warn('[total]', key, e); }   // 못 읽은 채널은 캐시 값을 그대로 둔다
+  }));
+  TOT.daily = next; TOT.err = err; TOT.at = Date.now(); TOT.loading = false;
+  try { localStorage.setItem('sephora_cache_total', JSON.stringify({ daily:next, at:TOT.at })); } catch (e) {}
+}
+// ── 집계 ──
+function totWeek_(d) { var t = new Date(d + 'T00:00:00Z'); return new Date(t.getTime() - t.getUTCDay() * 86400000).toISOString().slice(0, 10); }
+function totKey_(g, d) { return g === 'month' ? d.slice(0, 7) : g === 'week' ? totWeek_(d) : d; }
+function totAsof_(b, ch) { var m = (TOT.daily || {})[b + '|' + ch] || {}, a = ''; for (var d in m) if (d > a) a = d; return a; }
+function totBrandAsof_(b) { var a = ''; TOT_CH.forEach(function(c){ var x = totAsof_(b, c); if (x > a) a = x; }); return a; }
+function totSeries_(b, ch, g) {
+  var m = (TOT.daily || {})[b + '|' + ch] || {}, o = {};
+  for (var d in m) { var k = totKey_(g, d); o[k] = (o[k] || 0) + m[d]; }
+  return o;
+}
+function totSeriesW_(b, ch, g) {
+  var m = (TOT.daily || {})[b + '|' + ch] || {}, o = {};
+  for (var d in m) { var k = totKey_(g, d); o[k] = (o[k] || 0) + m[d] * totFx_(d); }
+  return o;
+}
+function totKpi_(b) {
+  var asOf = totBrandAsof_(b); if (!asOf) return null;
+  var y = +asOf.slice(0, 4), mo = +asOf.slice(5, 7), dd = +asOf.slice(8, 10);
+  var cur = asOf.slice(0, 7), prev = (mo === 1 ? y - 1 : y) + '-' + String(mo === 1 ? 12 : mo - 1).padStart(2, '0');
+  var k = { asOf:asOf, prevYm:prev, mtd:0, prev:0, last:0, ytd:0, w:{ mtd:0, prev:0, last:0, ytd:0 } };
+  TOT_CH.forEach(function(c) {
+    var m = (TOT.daily || {})[b + '|' + c] || {};
+    for (var d in m) {
+      var v = m[d], vw = v * totFx_(d), ym = d.slice(0, 7);
+      if (ym === cur) { k.mtd += v; k.w.mtd += vw; }
+      if (ym === prev) { k.last += v; k.w.last += vw; if (+d.slice(8, 10) <= dd) { k.prev += v; k.w.prev += vw; } }
+      if (d.slice(0, 4) === String(y) && d <= asOf) { k.ytd += v; k.w.ytd += vw; }
+    }
+  });
+  k.chg = k.prev ? k.mtd / k.prev - 1 : null;
+  return k;
+}
+// ── 표시 ──
+function totUsd_(v) { return '$' + Math.round(v).toLocaleString('en-US'); }
+// 원화 — 세포라 대시보드 표준 트렌드 환율: 2026-08-31까지 1,500원 · 09-01부터 1,400원. 날짜별로 환산한 뒤 더한다
+const TOT_FX_CUT = '2026-09-01', TOT_FX_OLD = 1500, TOT_FX_NEW = 1400;
+function totFx_(d) { return d >= TOT_FX_CUT ? TOT_FX_NEW : TOT_FX_OLD; }
+function totWon_(v) { return v >= 1e8 ? '₩' + (v / 1e8).toFixed(2) + '억' : '₩' + Math.round(v / 1e4).toLocaleString('ko-KR') + '만'; }
+function totBoth_(v, w) { return TOT.cur === 'KRW' ? totWon_(w) + ' <span class="tot-won">(' + totUsd_(v) + ')</span>' : totUsd_(v) + ' <span class="tot-won">(' + totWon_(w) + ')</span>'; }
+function totBothT_(v, w) { return TOT.cur === 'KRW' ? totWon_(w) + ' (' + totUsd_(v) + ')' : totUsd_(v) + ' (' + totWon_(w) + ')'; }
+function totAxis_(v) { if (TOT.cur === 'KRW') return v >= 1e8 ? '₩' + (v / 1e8).toFixed(1).replace(/\.0$/, '') + '억' : v >= 1e4 ? '₩' + Math.round(v / 1e4).toLocaleString('ko-KR') + '만' : '₩' + Math.round(v);
+  return v >= 1e6 ? '$' + (v / 1e6).toFixed(1).replace(/\.0$/, '') + 'M' : v >= 1e3 ? '$' + (v / 1e3).toFixed(v >= 1e4 ? 0 : 1).replace(/\.0$/, '') + 'K' : '$' + Math.round(v); }
+function totLbl_(g, p) { return g === 'month' ? (+p.slice(5, 7)) + '월' : (+p.slice(5, 7)) + '/' + (+p.slice(8, 10)); }
+function totTitle_(g, p) {
+  if (g === 'month') return p.slice(0, 4) + '년 ' + (+p.slice(5, 7)) + '월';
+  var t = new Date(p + 'T00:00:00Z');
+  if (g === 'week') { var e = new Date(t.getTime() + 6 * 86400000); return (t.getUTCMonth() + 1) + '/' + t.getUTCDate() + ' ~ ' + (e.getUTCMonth() + 1) + '/' + e.getUTCDate() + ' 주'; }
+  return (t.getUTCMonth() + 1) + '/' + t.getUTCDate() + ' (' + '일월화수목금토'[t.getUTCDay()] + ')';
+}
+function totEsc_(s) { return String(s).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
+// 막대 그래프 (keys 가 여러 개면 쌓는다). rows: [{p, v:{key:n}}]
+function totBars_(el, rows, keys, g) {
+  if (!el) return;
+  if (!rows.length) { el.innerHTML = '<div class="tot-empty">' + (TOT.loading ? '불러오는 중…' : '데이터 없음') + '</div>'; return; }
+  var W = Math.max(300, el.clientWidth || 600), H = 230, L = 48, R = 8, T = 10, B = 26;
+  var hv = function(r, k){ return TOT.cur === 'KRW' ? ((r.w || {})[k] || 0) : (r.v[k] || 0); };
+  var totU = rows.map(function(r){ return keys.reduce(function(s, k){ return s + Math.max(0, r.v[k] || 0); }, 0); });
+  var tot = rows.map(function(r){ return keys.reduce(function(s, k){ return s + Math.max(0, hv(r, k)); }, 0); });
+  var max = Math.max.apply(null, tot.concat([1]));
+  var step = Math.pow(10, Math.floor(Math.log10(max / 4))), nice = [1, 2, 2.5, 5, 10].map(function(x){ return x * step; }).find(function(s){ return max / s <= 5; }) || step * 10;
+  var top = Math.ceil(max / nice) * nice, iw = W - L - R, ih = H - T - B, bw = iw / rows.length;
+  var y = function(v){ return T + ih - v / top * ih; };
+  var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img">';
+  for (var t = 0; t <= top + 1e-9; t += nice) s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(t) + '" y2="' + y(t) + '" stroke="#f0f0f0"/><text x="' + (L - 6) + '" y="' + (y(t) + 3) + '" text-anchor="end">' + totAxis_(t) + '</text>';
+  var every = Math.ceil(rows.length / Math.max(1, Math.floor(iw / 44)));
+  rows.forEach(function(r, i) {
+    var x = L + i * bw, w = Math.max(1, bw * 0.72), x0 = x + (bw - w) / 2, acc = 0;
+    var tip = totTitle_(g, r.p) + '\n' + keys.map(function(k){ return (keys.length > 1 ? TOT_CH_NAME[k] + ' ' : '') + totBothT_(r.v[k] || 0, (r.w || {})[k] || 0); }).join('\n') + (keys.length > 1 ? '\n합계 ' + totBothT_(totU[i], keys.reduce(function(s, k){ return s + ((r.w || {})[k] || 0); }, 0)) : '');
+    s += '<g><title>' + totEsc_(tip) + '</title><rect x="' + x + '" y="' + T + '" width="' + bw + '" height="' + ih + '" fill="transparent"/>';
+    keys.forEach(function(k) {
+      var v = Math.max(0, hv(r, k)); if (!v) return;
+      s += '<rect x="' + x0.toFixed(1) + '" y="' + y(acc + v).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + Math.max(0.5, y(acc) - y(acc + v)).toFixed(1) + '" fill="' + TOT_COLOR[k] + '"' + (r.partial ? ' opacity=".55"' : '') + '/>';
+      acc += v;
+    });
+    s += '</g>';
+    if (i % every === 0) s += '<text x="' + (x + bw / 2) + '" y="' + (H - 8) + '" text-anchor="middle">' + totLbl_(g, r.p) + '</text>';
+  });
+  el.innerHTML = s + '</svg>';
+}
+function totRender_() {
+  var b = TOT.brand;
+  var pick = document.getElementById('totPick'), brand = document.getElementById('totBrand');
+  if (pick) pick.style.display = b ? 'none' : '';
+  if (brand) brand.style.display = b ? '' : 'none';
+  var errAll = TOT.err.all;
+  ['UN', 'DF'].forEach(function(x) {
+    var k = TOT.daily ? totKpi_(x) : null, el = document.getElementById('totBnum' + x);
+    var el2 = document.getElementById('totBlast' + x);
+    if (el2) el2.innerHTML = k ? totBoth_(k.last, k.w.last) + ' <span class="tot-bmeta">' + (+k.prevYm.slice(5, 7)) + '월 전체</span>' : (TOT.loading ? '불러오는 중…' : '—');
+    if (el) el.innerHTML = k ? totBoth_(k.mtd, k.w.mtd) + ' <span class="tot-bmeta">' + (+k.asOf.slice(5, 7)) + '/' + (+k.asOf.slice(8, 10)) + '까지</span>' : (TOT.loading ? '불러오는 중…' : '—');
+  });
+  var mp = document.getElementById('totMsgPick');
+  if (mp) { mp.style.display = errAll ? '' : 'none'; mp.textContent = errAll ? '시트를 못 읽었어요 (' + errAll + '). 다시 로그인해 주세요.' : ''; }
+  if (!b) return;
+  document.querySelectorAll('#tabTotal [data-totb]').forEach(function(x){ x.classList.toggle('on', x.dataset.totb === b); });
+  document.querySelectorAll('#tabTotal [data-totc]').forEach(function(x){ x.classList.toggle('on', x.dataset.totc === TOT.cur); });
+  document.querySelectorAll('#tabTotal [data-totg]').forEach(function(x){ x.classList.toggle('on', x.dataset.totg === TOT.gran); });
+  var k = TOT.daily ? totKpi_(b) : null;
+  document.getElementById('totTitle').textContent = TOT_BRAND[b] + ' US 매출';
+  var take = document.getElementById('totTake');
+  if (k) {
+    var share = TOT_CH.map(function(c){ var s = 0, m = TOT.daily[b + '|' + c] || {}; for (var d in m) if (d.slice(0, 7) === k.asOf.slice(0, 7)) s += m[d]; return [c, s]; }).sort(function(a, c){ return c[1] - a[1]; });
+    take.textContent = (+k.asOf.slice(5, 7)) + '월 ' + (+k.asOf.slice(8, 10)) + '일까지 ' + totBothT_(k.mtd, k.w.mtd) +
+      (k.chg == null ? '' : ', 지난달 같은 기간보다 ' + Math.abs(Math.round(k.chg * 100)) + '% ' + (k.chg >= 0 ? '많아요' : '적어요')) +
+      (share[0][1] > 0 && k.mtd > 0 ? '. 이번 달은 ' + TOT_CH_NAME[share[0][0]] + ' 비중이 ' + Math.round(share[0][1] / k.mtd * 100) + '%로 가장 커요.' : '.');
+  } else take.textContent = TOT.loading ? '불러오는 중…' : '데이터 없음';
+  document.getElementById('totKmtd').innerHTML = k ? totBoth_(k.mtd, k.w.mtd) + (k.chg == null ? '' : ' <span class="' + (k.chg >= 0 ? 'tot-up' : 'tot-down') + '" style="font-size:12px">' + (k.chg >= 0 ? '▲' : '▼') + Math.abs(Math.round(k.chg * 1000) / 10) + '%</span>') : '—';
+  document.getElementById('totKprev').innerHTML = k ? totBoth_(k.prev, k.w.prev) : '—';
+  document.getElementById('totKlast').innerHTML = k ? totBoth_(k.last, k.w.last) : '—';
+  document.getElementById('totKytd').innerHTML = k ? totBoth_(k.ytd, k.w.ytd) : '—';
+  // 채널 기준일이 다르다 — 늦은 채널(세포라 주 단위)은 그 채널 화면에 기준일을 따로 적는다
+  var errs = TOT_CH.filter(function(c){ return TOT.err[b + '|' + c]; }).map(function(c){ return TOT_CH_NAME[c] + ': ' + TOT.err[b + '|' + c]; });
+  var msg = document.getElementById('totMsg');
+  msg.style.display = (errs.length || errAll) ? '' : 'none';
+  msg.textContent = errAll ? '시트를 못 읽었어요 (' + errAll + ').' : errs.length ? '일부 채널을 새로 못 읽었어요 — ' + errs.join(' · ') + (TOT.daily ? ' (저장해 둔 값으로 보여요)' : '') : '';
+  // 전체 월 매출 (채널 쌓기)
+  var months = {}, asOf = k ? k.asOf : '';
+  var monthsW = {};
+  TOT_CH.forEach(function(c){ var s = totSeries_(b, c, 'month'), sw = totSeriesW_(b, c, 'month'); for (var p in s) { (months[p] = months[p] || {})[c] = s[p]; (monthsW[p] = monthsW[p] || {})[c] = sw[p]; } });
+  totBars_(document.getElementById('totMonthly'), Object.keys(months).sort().filter(function(p){ return p >= '2026-01'; }).map(function(p){ return { p:p, v:months[p], w:monthsW[p], partial: asOf && p === asOf.slice(0, 7) }; }), TOT_CH, 'month');
+  // 채널별
+  var today = new Date().toISOString().slice(0, 10);
+  TOT_CH.forEach(function(c) {
+    var s = totSeries_(b, c, TOT.gran), sw = totSeriesW_(b, c, TOT.gran), a = totAsof_(b, c), keys = Object.keys(s).sort();
+    if (TOT.gran === 'day') keys = keys.slice(-90);
+    if (TOT.gran === 'week') keys = keys.slice(-26);
+    totBars_(document.getElementById('totCh_' + c), keys.map(function(p){ var v = {}, w = {}; v[c] = s[p]; w[c] = sw[p]; return { p:p, v:v, w:w, partial: a && totKey_(TOT.gran, a) === p && TOT.gran !== 'day' }; }), [c], TOT.gran);
+    var as = document.getElementById('totAsof_' + c);
+    if (as) as.textContent = a ? (+a.slice(5, 7)) + '/' + (+a.slice(8, 10)) + '까지' : '—';
+    var ln = TOT_LINK[b][c], la = document.getElementById('totLink_' + c);
+    if (la) {
+      la.textContent = ln.label;
+      if (ln.tab) { la.removeAttribute('href'); la.removeAttribute('target'); la.onclick = function(){ switchTab(ln.tab); return false; }; }
+      else if (ln.same) { la.href = ln.url; la.removeAttribute('target'); la.onclick = null; }   // 같은 탭으로 열어야 로그인이 이어진다
+      else { la.href = ln.url; la.target = '_blank'; la.rel = 'noopener'; la.onclick = null; }
+    }
+  });
+  var na = document.getElementById('totNote_amazon');
+  if (na) na.textContent = b === 'UN' ? 'sell-out = 셀러센트럴 일 매출 (sell-in 데이터가 들어오면 바꿔요)' : 'sell-in = 아마존_주문_RAW sell-in 열 (시차 일자 PT)';
+}
+function totPick(b, fromPop) {
+  TOT.brand = b || '';
+  if (!fromPop && typeof BASE_PATH !== 'undefined') {
+    var path = BASE_PATH + (TOT.brand ? BRAND_SLUG[TOT.brand] : '');
+    if (path !== location.pathname) history.pushState(null, '', path);
+  }
+  totRender_(); window.scrollTo(0, 0);
+}
+window.addEventListener('popstate', function(){ if (typeof slugBrand_ === 'function') totPick(slugBrand_(), true); });
+function totGran(g) { TOT.gran = g; totRender_(); }
+function totCur(c) { TOT.cur = c; try { localStorage.setItem('wyatt_cur', c); } catch (e) {} totRender_(); }
+window.totCur = totCur;
+async function refreshTotal(force) {
+  try { totRender_(); await totLoad_(force); } catch (e) { console.warn('[total]', e); TOT.loading = false; }
+  totRender_();
+}
+window.totPick = totPick; window.totGran = totGran; window.refreshTotal = refreshTotal;
+
+</script>
+</body>
+</html>
