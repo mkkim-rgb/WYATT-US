@@ -101,7 +101,7 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
   <div id="totBrand" style="display:none;">
     <div class="tot-top">
       <button class="tot-back" type="button" onclick="totPick('')">← 브랜드 선택</button>
-      <div class="tot-seg"><button type="button" data-totb="UN" onclick="totPick('UN')">어노브</button><button type="button" data-totb="DF" onclick="totPick('DF')">닥터포헤어</button></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><div class="tot-seg"><button type="button" data-totc="USD" onclick="totCur('USD')">$ 달러</button><button type="button" data-totc="KRW" onclick="totCur('KRW')">₩ 원화</button></div><div class="tot-seg"><button type="button" data-totb="UN" onclick="totPick('UN')">어노브</button><button type="button" data-totb="DF" onclick="totPick('DF')">닥터포헤어</button></div></div>
     </div>
     <div class="tot-h1" id="totTitle">—</div>
     <p class="tot-sub" id="totTake">—</p>
@@ -227,7 +227,7 @@ const TOT_LINK = {
        amazon:{ url:'https://docs.google.com/spreadsheets/d/17TPlVzGcYBnQ9EiL_8wGybnB5fnSknf6HcgxWAG0Hkw/edit', label:'DF_Sales_dashboard_raw ↗' },
        tiktok:{ url:'https://docs.google.com/spreadsheets/d/17TPlVzGcYBnQ9EiL_8wGybnB5fnSknf6HcgxWAG0Hkw/edit', label:'DF_Sales_dashboard_raw ↗' } }
 };
-const TOT = { brand:'', gran:'week', daily:null, err:{}, at:0, loading:false };
+const TOT = { brand:'', gran:'week', cur:(function(){ try { return localStorage.getItem('wyatt_cur') || 'USD'; } catch (e) { return 'USD'; } })(), daily:null, err:{}, at:0, loading:false };
 
 function totDate_(v) {
   if (typeof v === 'number') return (v > 20000 && v < 80000) ? new Date(Date.UTC(1899, 11, 30) + Math.round(v) * 86400000).toISOString().slice(0, 10) : '';
@@ -318,9 +318,10 @@ function totUsd_(v) { return '$' + Math.round(v).toLocaleString('en-US'); }
 const TOT_FX_CUT = '2026-09-01', TOT_FX_OLD = 1500, TOT_FX_NEW = 1400;
 function totFx_(d) { return d >= TOT_FX_CUT ? TOT_FX_NEW : TOT_FX_OLD; }
 function totWon_(v) { return v >= 1e8 ? '₩' + (v / 1e8).toFixed(2) + '억' : '₩' + Math.round(v / 1e4).toLocaleString('ko-KR') + '만'; }
-function totBoth_(v, w) { return totUsd_(v) + ' <span class="tot-won">(' + totWon_(w) + ')</span>'; }
-function totBothT_(v, w) { return totUsd_(v) + ' (' + totWon_(w) + ')'; }
-function totAxis_(v) { return v >= 1e6 ? '$' + (v / 1e6).toFixed(1).replace(/\.0$/, '') + 'M' : v >= 1e3 ? '$' + (v / 1e3).toFixed(v >= 1e4 ? 0 : 1).replace(/\.0$/, '') + 'K' : '$' + Math.round(v); }
+function totBoth_(v, w) { return TOT.cur === 'KRW' ? totWon_(w) + ' <span class="tot-won">(' + totUsd_(v) + ')</span>' : totUsd_(v) + ' <span class="tot-won">(' + totWon_(w) + ')</span>'; }
+function totBothT_(v, w) { return TOT.cur === 'KRW' ? totWon_(w) + ' (' + totUsd_(v) + ')' : totUsd_(v) + ' (' + totWon_(w) + ')'; }
+function totAxis_(v) { if (TOT.cur === 'KRW') return v >= 1e8 ? '₩' + (v / 1e8).toFixed(1).replace(/\.0$/, '') + '억' : v >= 1e4 ? '₩' + Math.round(v / 1e4).toLocaleString('ko-KR') + '만' : '₩' + Math.round(v);
+  return v >= 1e6 ? '$' + (v / 1e6).toFixed(1).replace(/\.0$/, '') + 'M' : v >= 1e3 ? '$' + (v / 1e3).toFixed(v >= 1e4 ? 0 : 1).replace(/\.0$/, '') + 'K' : '$' + Math.round(v); }
 function totLbl_(g, p) { return g === 'month' ? (+p.slice(5, 7)) + '월' : (+p.slice(5, 7)) + '/' + (+p.slice(8, 10)); }
 function totTitle_(g, p) {
   if (g === 'month') return p.slice(0, 4) + '년 ' + (+p.slice(5, 7)) + '월';
@@ -334,7 +335,9 @@ function totBars_(el, rows, keys, g) {
   if (!el) return;
   if (!rows.length) { el.innerHTML = '<div class="tot-empty">' + (TOT.loading ? '불러오는 중…' : '데이터 없음') + '</div>'; return; }
   var W = Math.max(300, el.clientWidth || 600), H = 230, L = 48, R = 8, T = 10, B = 26;
-  var tot = rows.map(function(r){ return keys.reduce(function(s, k){ return s + Math.max(0, r.v[k] || 0); }, 0); });
+  var hv = function(r, k){ return TOT.cur === 'KRW' ? ((r.w || {})[k] || 0) : (r.v[k] || 0); };
+  var totU = rows.map(function(r){ return keys.reduce(function(s, k){ return s + Math.max(0, r.v[k] || 0); }, 0); });
+  var tot = rows.map(function(r){ return keys.reduce(function(s, k){ return s + Math.max(0, hv(r, k)); }, 0); });
   var max = Math.max.apply(null, tot.concat([1]));
   var step = Math.pow(10, Math.floor(Math.log10(max / 4))), nice = [1, 2, 2.5, 5, 10].map(function(x){ return x * step; }).find(function(s){ return max / s <= 5; }) || step * 10;
   var top = Math.ceil(max / nice) * nice, iw = W - L - R, ih = H - T - B, bw = iw / rows.length;
@@ -344,10 +347,10 @@ function totBars_(el, rows, keys, g) {
   var every = Math.ceil(rows.length / Math.max(1, Math.floor(iw / 44)));
   rows.forEach(function(r, i) {
     var x = L + i * bw, w = Math.max(1, bw * 0.72), x0 = x + (bw - w) / 2, acc = 0;
-    var tip = totTitle_(g, r.p) + '\n' + keys.map(function(k){ return (keys.length > 1 ? TOT_CH_NAME[k] + ' ' : '') + totBothT_(r.v[k] || 0, (r.w || {})[k] || 0); }).join('\n') + (keys.length > 1 ? '\n합계 ' + totBothT_(tot[i], keys.reduce(function(s, k){ return s + ((r.w || {})[k] || 0); }, 0)) : '');
+    var tip = totTitle_(g, r.p) + '\n' + keys.map(function(k){ return (keys.length > 1 ? TOT_CH_NAME[k] + ' ' : '') + totBothT_(r.v[k] || 0, (r.w || {})[k] || 0); }).join('\n') + (keys.length > 1 ? '\n합계 ' + totBothT_(totU[i], keys.reduce(function(s, k){ return s + ((r.w || {})[k] || 0); }, 0)) : '');
     s += '<g><title>' + totEsc_(tip) + '</title><rect x="' + x + '" y="' + T + '" width="' + bw + '" height="' + ih + '" fill="transparent"/>';
     keys.forEach(function(k) {
-      var v = Math.max(0, r.v[k] || 0); if (!v) return;
+      var v = Math.max(0, hv(r, k)); if (!v) return;
       s += '<rect x="' + x0.toFixed(1) + '" y="' + y(acc + v).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + Math.max(0.5, y(acc) - y(acc + v)).toFixed(1) + '" fill="' + TOT_COLOR[k] + '"' + (r.partial ? ' opacity=".55"' : '') + '/>';
       acc += v;
     });
@@ -372,6 +375,7 @@ function totRender_() {
   if (mp) { mp.style.display = errAll ? '' : 'none'; mp.textContent = errAll ? '시트를 못 읽었어요 (' + errAll + '). 다시 로그인해 주세요.' : ''; }
   if (!b) return;
   document.querySelectorAll('#tabTotal [data-totb]').forEach(function(x){ x.classList.toggle('on', x.dataset.totb === b); });
+  document.querySelectorAll('#tabTotal [data-totc]').forEach(function(x){ x.classList.toggle('on', x.dataset.totc === TOT.cur); });
   document.querySelectorAll('#tabTotal [data-totg]').forEach(function(x){ x.classList.toggle('on', x.dataset.totg === TOT.gran); });
   var k = TOT.daily ? totKpi_(b) : null;
   document.getElementById('totTitle').textContent = TOT_BRAND[b] + ' US 매출';
@@ -418,6 +422,8 @@ function totRender_() {
 }
 function totPick(b) { TOT.brand = b || ''; totRender_(); }
 function totGran(g) { TOT.gran = g; totRender_(); }
+function totCur(c) { TOT.cur = c; try { localStorage.setItem('wyatt_cur', c); } catch (e) {} totRender_(); }
+window.totCur = totCur;
 async function refreshTotal(force) {
   try { totRender_(); await totLoad_(force); } catch (e) { console.warn('[total]', e); TOT.loading = false; }
   totRender_();
