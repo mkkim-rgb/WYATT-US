@@ -65,6 +65,7 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
 #tabTotal .tot-chart{width:100%;min-height:220px}
 #tabTotal .tot-chart svg{display:block;width:100%;height:auto}
 #tabTotal .tot-chart text{font-size:10px;fill:#6b7280}
+#tabTotal .tot-chart text.tot-vl{font-size:9.5px;font-weight:700;fill:#374151}
 #tabTotal .tot-grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;margin-top:12px}
 #tabTotal .tot-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;border-top:1px solid #f0f0f0;padding-top:8px;font-size:11px;color:#6b7280}
 #tabTotal .tot-foot a{color:#1D2847;font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
@@ -328,6 +329,10 @@ function totBoth_(v, w) { return TOT.cur === 'KRW' ? totWon_(w) + ' <span class=
 function totBothT_(v, w) { return TOT.cur === 'KRW' ? totWon_(w) + ' (' + totUsd_(v) + ')' : totUsd_(v) + ' (' + totWon_(w) + ')'; }
 function totAxis_(v) { if (TOT.cur === 'KRW') return v >= 1e8 ? '₩' + (v / 1e8).toFixed(1).replace(/\.0$/, '') + '억' : v >= 1e4 ? '₩' + Math.round(v / 1e4).toLocaleString('ko-KR') + '만' : '₩' + Math.round(v);
   return v >= 1e6 ? '$' + (v / 1e6).toFixed(1).replace(/\.0$/, '') + 'M' : v >= 1e3 ? '$' + (v / 1e3).toFixed(v >= 1e4 ? 0 : 1).replace(/\.0$/, '') + 'K' : '$' + Math.round(v); }
+function totVal_(v) {
+  if (TOT.cur === 'KRW') return v >= 1e8 ? (v / 1e8).toFixed(v >= 1e9 ? 1 : 2) + '억' : Math.round(v / 1e4).toLocaleString('ko-KR') + '만';
+  return v >= 1e6 ? '$' + (v / 1e6).toFixed(2) + 'M' : v >= 1e3 ? '$' + (v / 1e3).toFixed(v >= 1e5 ? 0 : 1) + 'K' : '$' + Math.round(v);
+}
 function totLbl_(g, p) { return g === 'month' ? (+p.slice(5, 7)) + '월' : (+p.slice(5, 7)) + '/' + (+p.slice(8, 10)); }
 function totTitle_(g, p) {
   if (g === 'month') return p.slice(0, 4) + '년 ' + (+p.slice(5, 7)) + '월';
@@ -340,13 +345,14 @@ function totEsc_(s) { return String(s).replace(/[&<>"]/g, function(c){ return { 
 function totBars_(el, rows, keys, g) {
   if (!el) return;
   if (!rows.length) { el.innerHTML = '<div class="tot-empty">' + (TOT.loading ? '불러오는 중…' : '데이터 없음') + '</div>'; return; }
-  var W = Math.max(300, el.clientWidth || 600), H = 230, L = 48, R = 8, T = 10, B = 26;
+  var W = Math.max(300, el.clientWidth || 600), H = 240, L = 48, R = 8, T = 18, B = 26;
   var hv = function(r, k){ return TOT.cur === 'KRW' ? ((r.w || {})[k] || 0) : (r.v[k] || 0); };
   var totU = rows.map(function(r){ return keys.reduce(function(s, k){ return s + Math.max(0, r.v[k] || 0); }, 0); });
   var tot = rows.map(function(r){ return keys.reduce(function(s, k){ return s + Math.max(0, hv(r, k)); }, 0); });
   var max = Math.max.apply(null, tot.concat([1]));
   var step = Math.pow(10, Math.floor(Math.log10(max / 4))), nice = [1, 2, 2.5, 5, 10].map(function(x){ return x * step; }).find(function(s){ return max / s <= 5; }) || step * 10;
-  var top = Math.ceil(max / nice) * nice, iw = W - L - R, ih = H - T - B, bw = iw / rows.length;
+  var bw0 = (W - L - R) / rows.length, vlab = bw0 >= 30 ? 'h' : bw0 >= 11 ? 'v' : '';   // 막대 위 값: 넓으면 가로, 좁으면 세로, 너무 좁으면(일 90칸) 생략
+  var top = Math.ceil(max * (vlab === 'v' ? 1.3 : 1.08) / nice) * nice, iw = W - L - R, ih = H - T - B, bw = iw / rows.length;
   var y = function(v){ return T + ih - v / top * ih; };
   var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img">';
   for (var t = 0; t <= top + 1e-9; t += nice) s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(t) + '" y2="' + y(t) + '" stroke="#f0f0f0"/><text x="' + (L - 6) + '" y="' + (y(t) + 3) + '" text-anchor="end">' + totAxis_(t) + '</text>';
@@ -360,6 +366,11 @@ function totBars_(el, rows, keys, g) {
       s += '<rect x="' + x0.toFixed(1) + '" y="' + y(acc + v).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + Math.max(0.5, y(acc) - y(acc + v)).toFixed(1) + '" fill="' + TOT_COLOR[k] + '"' + (r.partial ? ' opacity=".55"' : '') + '/>';
       acc += v;
     });
+    if (vlab && tot[i] > 0) {
+      var lx = x + bw / 2, ly = y(tot[i]) - 4;
+      s += vlab === 'h' ? '<text class="tot-vl" x="' + lx.toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="middle">' + totVal_(tot[i]) + '</text>'
+                        : '<text class="tot-vl" transform="translate(' + (lx + 3).toFixed(1) + ',' + ly.toFixed(1) + ') rotate(-90)" text-anchor="start">' + totVal_(tot[i]) + '</text>';
+    }
     s += '</g>';
     if (i % every === 0) s += '<text x="' + (x + bw / 2) + '" y="' + (H - 8) + '" text-anchor="middle">' + totLbl_(g, r.p) + '</text>';
   });
