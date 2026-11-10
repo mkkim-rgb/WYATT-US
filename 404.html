@@ -156,7 +156,7 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
       <div><b>아마존</b> — 어노브: UN_US_Sales_dashboard_raw 「아마존내부_매출트래픽_RAW」 일 매출(셀러센트럴, PT). sell-in 데이터가 들어오기 전까지 sell-out이에요. 닥터포헤어: DF_Sales_dashboard_raw 「아마존_주문_RAW」 sell-in 열을 시차 일자(PT)별 합계.</div>
       <div><b>틱톡샵</b> — 어노브: 틱톡샵_RAW_데이터_UN-US 「매출_순sellout_daily」 순매출(PST, 9/29~). 닥터포헤어: DF_Sales_dashboard_raw 「틱톡_일별_RAW」 셀인(6/1~).</div>
       <div><b>원화</b> — 괄호 안 원화는 세포라 대시보드 기준 환율로 날짜별 환산 후 합계 (2026-09-01부터 1,400원, 그 전 1,500원/달러).</div>
-      <div><b>주 단위</b> — 일요일~토요일, 막대에는 주 시작일(일요일). 그래프는 위 기간 필터 범위만 보여줘요. 기본(전체)은 가장 이른 데이터 일자 ~ 모든 채널이 들어온 마지막 날.</div>
+      <div><b>주 단위</b> — 일요일~토요일, 막대에는 주 시작일(일요일). 그래프는 위 기간 필터 범위만 보여줘요. 기본(전체)은 올해 1/1 ~ 모든 채널이 들어온 마지막 날.</div>
       <div>원본 시트를 로그인한 계정 권한으로 직접 읽어요. 시트 보기 권한이 없으면 그 채널은 비어 보여요.</div>
     </details>
   </div>
@@ -310,10 +310,10 @@ function totRange_(r, b) {
   if (r === 'mtd') return [totYmd_(new Date(y, m, 1)), a];
   if (r === 'lm') return [totYmd_(new Date(y, m - 1, 1)), totYmd_(new Date(y, m, 0))];
   if (r === 'ytd') return [y + '-01-01', a];
-  if (r === 'all') {   // 기본값 — 시작 = 가장 이른 데이터 일자, 종료 = 채널별 마지막 일자 중 가장 이른 날(모든 채널이 들어온 날까지)
+  if (r === 'all') {   // 기본값 — 시작 = 올해 1/1, 종료 = 채널별 마지막 일자 중 가장 이른 날(모든 채널이 들어온 날까지)
     var first = '', lastMin = '';
     TOT_CH.forEach(function(c){ var m = (TOT.daily || {})[b + '|' + c] || {}, ks = Object.keys(m); if (!ks.length) return; ks.sort(); if (!first || ks[0] < first) first = ks[0]; var l = ks[ks.length - 1]; if (!lastMin || l < lastMin) lastMin = l; });
-    return [first, lastMin];
+    return [(lastMin || totYmd_(new Date())).slice(0, 4) + '-01-01', lastMin];   // 시작은 올해 1/1 고정 (민경 11/10)
   }
   return [TOT.from, TOT.to];
 }
