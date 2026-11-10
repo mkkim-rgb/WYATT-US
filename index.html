@@ -133,13 +133,13 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
         <div class="tot-card-head"><h3>아마존</h3><span class="tot-note" id="totAsof_amazon">—</span></div>
         <div class="tot-note" id="totNote_amazon">—</div>
         <div class="tot-chart" id="totCh_amazon"></div>
-        <div class="tot-foot"><span>세부 대시보드 연결 전 · 원본 시트</span><a id="totLink_amazon" target="_blank" rel="noopener">—</a></div>
+        <div class="tot-foot"><span>세부 대시보드</span><a id="totLink_amazon" target="_blank" rel="noopener">—</a></div>
       </div>
       <div class="tot-card">
         <div class="tot-card-head"><h3>틱톡샵</h3><span class="tot-note" id="totAsof_tiktok">—</span></div>
         <div class="tot-note">sell-in = 순매출 (반품·할인·환불 차감)</div>
         <div class="tot-chart" id="totCh_tiktok"></div>
-        <div class="tot-foot"><span>세부 대시보드 연결 전 · 원본 시트</span><a id="totLink_tiktok" target="_blank" rel="noopener">—</a></div>
+        <div class="tot-foot"><span>세부 대시보드</span><a id="totLink_tiktok" target="_blank" rel="noopener">—</a></div>
       </div>
     </div>
     <details>
@@ -220,12 +220,12 @@ const TOT_CH_NAME = { sephora:'세포라', amazon:'아마존', tiktok:'틱톡샵
 const TOT_COLOR = { sephora:'#1D2847', amazon:'#E0A040', tiktok:'#d97070' };
 const TOT_BRAND = { UN:'어노브', DF:'닥터포헤어' };
 const TOT_LINK = {
-  UN:{ sephora:{ url:'https://ella-yh.github.io/Unove-Sephora-Dashboard/', label:'어노브 세포라 대시보드 →', same:true },
-       amazon:{ url:'https://docs.google.com/spreadsheets/d/1_nA-vUWePT8Ex70J5oIUB5xSrnjlHnPXUfCtf0gDPb0/edit', label:'UN_US_Sales_dashboard_raw ↗' },
-       tiktok:{ url:'https://docs.google.com/spreadsheets/d/1etJb43LKLdVDEFICaULk2skXZ1mIKNgvlRw8JQNCeFw/edit', label:'틱톡샵 RAW (UN-US) ↗' } },
+  UN:{ sephora:{ url:'https://ella-yh.github.io/Unove-Sephora-Dashboard/', label:'어노브 세포라 대시보드 ↗' },
+       amazon:{ url:'https://un-us-dashboard.pages.dev/', label:'어노브 아마존 대시보드 ↗' },
+       tiktok:{ url:'https://un-us-tts-dashboard.pages.dev/', label:'어노브 틱톡샵 대시보드 ↗' } },
   DF:{ sephora:{ url:'https://mhlee-collab.github.io/df-us-sephora-dashboard/', label:'닥포 세포라 대시보드 ↗' },
-       amazon:{ url:'https://docs.google.com/spreadsheets/d/17TPlVzGcYBnQ9EiL_8wGybnB5fnSknf6HcgxWAG0Hkw/edit', label:'DF_Sales_dashboard_raw ↗' },
-       tiktok:{ url:'https://docs.google.com/spreadsheets/d/17TPlVzGcYBnQ9EiL_8wGybnB5fnSknf6HcgxWAG0Hkw/edit', label:'DF_Sales_dashboard_raw ↗' } }
+       amazon:{ url:'https://df-us-dashboard.pages.dev/', label:'닥포 아마존 대시보드 ↗' },
+       tiktok:{ url:'https://df-us-tts-dashboard.pages.dev/', label:'닥포 틱톡샵 대시보드 ↗' } }
 };
 const TOT = { brand:'', gran:'week', cur:(function(){ try { return localStorage.getItem('wyatt_cur') || 'USD'; } catch (e) { return 'USD'; } })(), daily:null, err:{}, at:0, loading:false };
 
