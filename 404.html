@@ -48,7 +48,8 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
 #tabTotal .tot-flbl{font-size:12px;font-weight:800}
 #tabTotal .tot-dates{font-size:12px;color:#6b7280}
 #tabTotal .tot-dates input{font:inherit;font-size:12px;border:1px solid #e5e7eb;border-radius:6px;padding:4px 6px;color:#1b1b1b}
-#tabTotal .tot-rsum{flex-basis:100%;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;color:#6b7280}
+#tabTotal .tot-rsum{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;color:#6b7280;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px;margin:0 0 12px}
+#tabTotal .tot-rsum:empty{display:none}
 #tabTotal .tot-rsum b{color:#1b1b1b}
 #tabTotal .tot-bgo{font-size:11px;color:#d97070;font-weight:700;margin-top:6px}
 #tabTotal .tot-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
@@ -108,7 +109,7 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
   <div id="totBrand" style="display:none;">
     <div class="tot-top">
       <button class="tot-back" type="button" onclick="totPick('')">← 브랜드 선택</button>
-      <div style="display:flex;gap:8px;flex-wrap:wrap"><div class="tot-seg"><button type="button" data-totc="USD" onclick="totCur('USD')">$ 달러</button><button type="button" data-totc="KRW" onclick="totCur('KRW')">₩ 원화</button></div><div class="tot-seg"><button type="button" data-totb="UN" onclick="totPick('UN')">어노브</button><button type="button" data-totb="DF" onclick="totPick('DF')">닥터포헤어</button></div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end"><div class="tot-seg"><button type="button" data-totr="30d" onclick="totRng('30d')">최근 30일</button><button type="button" data-totr="90d" onclick="totRng('90d')">최근 90일</button><button type="button" data-totr="mtd" onclick="totRng('mtd')">이번 달</button><button type="button" data-totr="lm" onclick="totRng('lm')">지난달</button><button type="button" data-totr="ytd" onclick="totRng('ytd')">올해</button><button type="button" data-totr="all" onclick="totRng('all')">전체</button></div><span class="tot-dates"><input type="date" id="totFrom" onchange="totRngDate()"> ~ <input type="date" id="totTo" onchange="totRngDate()"></span><div class="tot-seg"><button type="button" data-totc="USD" onclick="totCur('USD')">$ 달러</button><button type="button" data-totc="KRW" onclick="totCur('KRW')">₩ 원화</button></div><div class="tot-seg"><button type="button" data-totb="UN" onclick="totPick('UN')">어노브</button><button type="button" data-totb="DF" onclick="totPick('DF')">닥터포헤어</button></div></div>
     </div>
     <div class="tot-h1" id="totTitle">—</div>
     <p class="tot-sub" id="totTake">—</p>
@@ -118,12 +119,6 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
       <div class="tot-kpi"><div class="l">지난달 같은 기간</div><div class="v" id="totKprev">—</div></div>
       <div class="tot-kpi"><div class="l">지난달 전체</div><div class="v" id="totKlast">—</div></div>
       <div class="tot-kpi"><div class="l">올해 누적</div><div class="v" id="totKytd">—</div></div>
-    </div>
-    <div class="tot-filter">
-      <span class="tot-flbl">기간</span>
-      <div class="tot-seg"><button type="button" data-totr="30d" onclick="totRng('30d')">최근 30일</button><button type="button" data-totr="90d" onclick="totRng('90d')">최근 90일</button><button type="button" data-totr="mtd" onclick="totRng('mtd')">이번 달</button><button type="button" data-totr="lm" onclick="totRng('lm')">지난달</button><button type="button" data-totr="ytd" onclick="totRng('ytd')">올해</button><button type="button" data-totr="all" onclick="totRng('all')">전체</button></div>
-      <span class="tot-dates"><input type="date" id="totFrom" onchange="totRngDate()"> ~ <input type="date" id="totTo" onchange="totRngDate()"></span>
-      <div class="tot-rsum" id="totRngSum"></div>
     </div>
     <div class="tot-card">
       <div class="tot-card-head"><h3>전체 월 매출</h3>
