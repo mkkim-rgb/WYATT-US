@@ -294,7 +294,8 @@ async function totFinFetch_(src, token) {
   var js = await res.json(), rows = ((js.valueRanges || [])[0] || {}).values || [];
   var hy = rows[0] || [], hm = rows[1] || [], cols = [], yr = '';
   for (var j = 19; j <= 30; j++) {   // T ~ AE = 올해 1~12월. 머리글은 「2026년」+「01月」(어노브) 또는 날짜(닥포)
-    if (typeof hy[j] === 'number' && hy[j] > 40000) { var dd = totDate_(hy[j]); if (dd) { cols.push([j, dd.slice(0, 7)]); continue; } }
+    var hd = [hy[j], hm[j]].filter(function(x){ return typeof x === 'number' && x > 40000; })[0];   // 날짜 칸(「01月」처럼 보이는 날짜 포함)
+    if (hd) { var dd = totDate_(hd); if (dd) { cols.push([j, dd.slice(0, 7)]); continue; } }
     var y = String(hy[j] == null ? '' : hy[j]).match(/(\d{4})/); if (y) yr = y[1];
     var mo = parseInt(String(hm[j] == null ? '' : hm[j]), 10);
     if (yr && mo >= 1 && mo <= 12) cols.push([j, yr + '-' + String(mo).padStart(2, '0')]);
