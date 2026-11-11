@@ -321,7 +321,7 @@ async function totFinFetch_(src, token) {
 async function totLoad_(force) {
   if (TOT.loading) return;
   if (!TOT.daily) { var c = loadTabCache_('sephora_cache_total'); if (c && c.daily) { TOT.daily = c.daily; TOT.fin = c.fin || {}; TOT.at = c.at || 0; } }
-  if (!force && TOT.daily && Date.now() - TOT.at < 600000 && !Object.keys(TOT.err).length) return;   // 10분 안에는 다시 읽지 않는다
+  if (!force && TOT.daily && Date.now() - TOT.at < 600000 && !Object.keys(TOT.err).length && Object.keys(TOT_FIN).every(function(b){ return (TOT.fin || {})[b]; })) return;   // 실적 시트 값이 캐시에 없으면(이전 버전 캐시) 바로 다시 읽는다   // 10분 안에는 다시 읽지 않는다
   var token = sessionStorage.getItem('sephora_token');
   if (!token) { TOT.err = { all:'로그인 토큰 없음' }; return; }
   TOT.loading = true; totRender_();
