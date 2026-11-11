@@ -152,8 +152,7 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
     </div>
     <details>
       <summary>매출 기준과 출처</summary>
-      <div><b>전체 월 매출 (어노브)</b> — 실적 관리시트 UN_Anglo_summary (fin) 「사업실적_Summary」의 US 매출(Sell-in) 판매채널 행(아마존·세포라 sell-in·코스트코 sell-in·콜스 sell-in·아이월드) 월 값(원). 위 KPI도 이 값이에요. 실적 시트는 매주 월요일 담당자가 업데이트해서 이번 달은 집계 중이에요. 틱톡샵은 실적 시트에 없어서 빠져요. 달러는 원화를 아래 환율로 나눈 값이에요. 판매채널 합이 시트의 US 매출(Sell-in)과 다르면 화면에 알려요.</div>
-      <div><b>전체 월 매출 (닥터포헤어)</b> — 실적 관리시트 연결 전이라 아래 채널 일별 데이터를 더한 값이에요.</div>
+      <div><b>전체 월 매출</b> — 실적 관리시트 「사업실적_Summary」(어노브: UN_Anglo_summary (fin), 닥터포헤어: 닥포 실적 시트)의 US 매출(Sell-in) 판매채널 행(아마존·세포라·틱톡샵·코스트코·콜스·아이월드 sell-in) 월 값(원). 위 KPI도 이 값이에요. 실적 시트는 매주 월요일 담당자가 업데이트해서 이번 달은 집계 중이고, 담당자가 아직 안 넣은 칸은 0으로 보여요. 어노브 실적 시트에는 틱톡샵 줄이 없어요. 달러는 원화를 아래 환율로 나눈 값이에요. 판매채널 합이 시트의 US 매출(Sell-in)과 다르면 화면에 알려요.</div>
       <div><b>세포라</b> — [UN_US] RAW_매출유입_Sephora / [DF_US] 세포라 대시보드 RAW의 실매출 탭 전체 매출($). 세포라 POS 매출이라 sell-out이에요(출고 sell-in 아님). 주 단위로 들어와서 다른 채널보다 늦을 수 있어요. 닥터포헤어는 7/26부터.</div>
       <div><b>아마존</b> — 어노브: UN_US_Sales_dashboard_raw 「아마존내부_매출트래픽_RAW」 일 매출(셀러센트럴, PT). sell-in 데이터가 들어오기 전까지 sell-out이에요. 닥터포헤어: DF_Sales_dashboard_raw 「아마존_주문_RAW」 sell-in 열을 시차 일자(PT)별 합계.</div>
       <div><b>틱톡샵</b> — 어노브: 틱톡샵_RAW_데이터_UN-US 「매출_순sellout_daily」 순매출(PST, 9/29~). 닥터포헤어: DF_Sales_dashboard_raw 「틱톡_일별_RAW」 셀인(6/1~).</div>
@@ -244,10 +243,11 @@ const TOT_LINK = {
        tiktok:{ url:'https://df-us-tts-dashboard.pages.dev/', label:'닥포 틱톡샵 대시보드 ↗' } }
 };
 // 실적 관리시트(재무) — 월별 sell-in, 원화. 브랜드별 시트가 생기면 여기에 추가 (닥포는 아직 없음)
-const TOT_FIN = { UN:{ sheet:'1XxvK_y3aOaLDzZjZnZS6xLJrjvweicnU4lzsnjOM4Q8', range:'사업실적_Summary!A7:AE80' } };
-const TOT_FCH = ['costco', 'sephora', 'amazon', 'kohls', 'iworld'];
+const TOT_FIN = { UN:{ sheet:'1XxvK_y3aOaLDzZjZnZS6xLJrjvweicnU4lzsnjOM4Q8', range:'사업실적_Summary!A7:AE120' },
+                  DF:{ sheet:'1IHI8wjGUJcChzlnkvmh9vGLWChh0VQD-kc2N_zZUMKE', range:'사업실적_Summary!A7:AE120' } };
+const TOT_FCH = ['costco', 'sephora', 'amazon', 'tiktok', 'kohls', 'iworld'];
 // C열 이름(공백 빼고 소문자) → 판매채널. US 구역(「총 비용」 행 전)에서 처음 나오는 행만 쓴다
-const TOT_FIN_LBL = { amazon:'아마존매출', sephora:'세포라매출(sell-in)', costco:'코스트코매출(sell-in)', kohls:"kohl's매출(sell-in)", iworld:'아이월드(코스트코외)' };
+const TOT_FIN_LBL = { amazon:'아마존매출', sephora:'세포라매출(sell-in)', costco:'코스트코매출(sell-in)', kohls:"kohl's매출(sell-in)", iworld:'아이월드(코스트코외)', tiktok:'틱톡샵매출(sell-in)' };
 const TOT = { brand:'', gran:'week', rng:'all', from:'', to:'', cur:(function(){ try { return localStorage.getItem('wyatt_cur') || 'USD'; } catch (e) { return 'USD'; } })(), daily:null, fin:{}, err:{}, at:0, loading:false };
 
 function totDate_(v) {
@@ -293,7 +293,8 @@ async function totFinFetch_(src, token) {
   if (!res.ok) throw new Error(res.status === 403 ? '실적 시트 보기 권한 없음' : res.status === 401 ? '로그인 만료' : '실적 시트 읽기 실패 (' + res.status + ')');
   var js = await res.json(), rows = ((js.valueRanges || [])[0] || {}).values || [];
   var hy = rows[0] || [], hm = rows[1] || [], cols = [], yr = '';
-  for (var j = 19; j <= 30; j++) {   // T ~ AE = 올해 1~12월
+  for (var j = 19; j <= 30; j++) {   // T ~ AE = 올해 1~12월. 머리글은 「2026년」+「01月」(어노브) 또는 날짜(닥포)
+    if (typeof hy[j] === 'number' && hy[j] > 40000) { var dd = totDate_(hy[j]); if (dd) { cols.push([j, dd.slice(0, 7)]); continue; } }
     var y = String(hy[j] == null ? '' : hy[j]).match(/(\d{4})/); if (y) yr = y[1];
     var mo = parseInt(String(hm[j] == null ? '' : hm[j]), 10);
     if (yr && mo >= 1 && mo <= 12) cols.push([j, yr + '-' + String(mo).padStart(2, '0')]);
@@ -306,12 +307,11 @@ async function totFinFetch_(src, token) {
     if (a === 'us매출(sell-in)' && !totRow) totRow = r;
     for (var ch in TOT_FIN_LBL) if (!rowOf[ch] && c === TOT_FIN_LBL[ch]) rowOf[ch] = r;
   }
-  var miss = TOT_FCH.filter(function(ch){ return !rowOf[ch]; });
-  if (!totRow || miss.length) throw new Error('실적 시트 행을 못 찾았어요 (' + (totRow ? miss.map(function(c){ return TOT_CH_NAME[c]; }).join('·') : 'US 매출(Sell-in)') + ')');
+  if (!totRow || !rowOf.amazon) throw new Error('실적 시트 행을 못 찾았어요 (' + (totRow ? '아마존 매출' : 'US 매출(Sell-in)') + ')');   // 없는 판매채널 행은 0으로 본다 — 합이 총합과 다르면 아래에서 알린다
   var out = { months:{}, total:{}, bad:[] };
   cols.forEach(function(x) {
     var j = x[0], ym = x[1], o = {}, sum = 0;
-    TOT_FCH.forEach(function(ch){ var v = totNum_(rowOf[ch][j]); o[ch] = v; sum += v; });
+    TOT_FCH.forEach(function(ch){ var v = rowOf[ch] ? totNum_(rowOf[ch][j]) : 0; o[ch] = v; sum += v; });
     var t = totNum_(totRow[j]);
     out.months[ym] = o; out.total[ym] = t;
     if (Math.abs(sum - t) > 1) out.bad.push(ym);   // 판매채널 합 ≠ US 매출(Sell-in)
@@ -550,7 +550,7 @@ function totRender_() {
     }
     asOf = fk ? fk.cur + '-01' : asOf;
     document.getElementById('totMonthlyH').textContent = '전체 월 매출 (sell-in)';
-    document.getElementById('totMonthlyNote').textContent = '실적 관리시트 「사업실적_Summary」 판매채널별 sell-in 월 합계예요. 틱톡샵은 실적 시트에 없어서 빠져요. 위 기간 필터를 따르고, 이번 달은 집계 중이에요.';
+    document.getElementById('totMonthlyNote').textContent = '실적 관리시트 「사업실적_Summary」 판매채널별 sell-in 월 합계예요. 담당자가 아직 안 넣은 칸은 비어 보여요. 위 기간 필터를 따르고, 이번 달은 집계 중이에요.';
   } else {
     TOT_CH.forEach(function(c){ var s = totSeries_(b, c, 'month'), sw = totSeriesW_(b, c, 'month'); for (var p in s) { (months[p] = months[p] || {})[c] = s[p]; (monthsW[p] = monthsW[p] || {})[c] = sw[p]; } });
     document.getElementById('totMonthlyH').textContent = '전체 월 매출';
