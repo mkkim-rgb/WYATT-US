@@ -122,7 +122,7 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
     </div>
     <div class="tot-card">
       <div class="tot-card-head"><h3 id="totMonthlyH">전체 월 매출</h3>
-        <div class="tot-legend" id="totLegend"></div></div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center"><div class="tot-legend" id="totLegend"></div><div class="tot-legend" id="totLineSel"></div></div></div>
       <div class="tot-note" id="totMonthlyNote">채널 매출을 쌓은 월 합계예요. 위 기간 필터를 따르고, 이번 달은 기준일까지 누적이에요.</div>
       <div class="tot-chart" id="totMonthly"></div>
     </div>
@@ -152,7 +152,7 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
     </div>
     <details>
       <summary>매출 기준과 출처</summary>
-      <div><b>전체 월 매출</b> — 실적 관리시트 「사업실적_Summary」(어노브: UN_Anglo_summary (fin), 닥터포헤어: 닥포 실적 시트)의 US 매출(Sell-in) 판매채널 행(아마존·세포라·틱톡샵·코스트코·콜스·아이월드 sell-in) 월 값(원). 위 KPI도 이 값이에요. 실적 시트는 매주 월요일 담당자가 업데이트해서 이번 달은 집계 중이고, 담당자가 아직 안 넣은 칸은 0으로 보여요. 어노브 실적 시트에는 틱톡샵 줄이 없어요. 달러는 원화를 아래 환율로 나눈 값이에요. 판매채널 합이 시트의 US 매출(Sell-in)과 다르면 화면에 알려요.</div>
+      <div><b>전체 월 매출</b> — 실적 관리시트 「사업실적_Summary」(어노브: UN_Anglo_summary (fin), 닥터포헤어: 닥포 실적 시트)의 US 매출(Sell-in) 판매채널 행(아마존·세포라·틱톡샵·코스트코·콜스·아이월드 sell-in) 월 값(원). 위 KPI도 이 값이에요. 실적 시트는 매주 월요일 담당자가 업데이트해서 이번 달은 집계 중이고, 담당자가 아직 안 넣은 칸은 0으로 보여요. 틱톡샵은 실적 시트에 값이 없는 달만 틱톡샵 원본 시트 sell-in(순매출)으로 채워요. 비용(총 비용 US only)·공헌이익(US 매출 Sell-in 공헌이익)·직접이익(총 직접이익 Sell-in)은 체크하면 선으로 보여요. 달러는 원화를 아래 환율로 나눈 값이에요. 판매채널 합이 시트의 US 매출(Sell-in)과 다르면 화면에 알려요.</div>
       <div><b>세포라</b> — [UN_US] RAW_매출유입_Sephora / [DF_US] 세포라 대시보드 RAW의 실매출 탭 전체 매출($). 세포라 POS 매출이라 sell-out이에요(출고 sell-in 아님). 주 단위로 들어와서 다른 채널보다 늦을 수 있어요. 닥터포헤어는 7/26부터.</div>
       <div><b>아마존</b> — 어노브: UN_US_Sales_dashboard_raw 「아마존내부_매출트래픽_RAW」 일 매출(셀러센트럴, PT). sell-in 데이터가 들어오기 전까지 sell-out이에요. 닥터포헤어: DF_Sales_dashboard_raw 「아마존_주문_RAW」 sell-in 열을 시차 일자(PT)별 합계.</div>
       <div><b>틱톡샵</b> — 어노브: 틱톡샵_RAW_데이터_UN-US 「매출_순sellout_daily」 순매출(PST, 9/29~). 닥터포헤어: DF_Sales_dashboard_raw 「틱톡_일별_RAW」 셀인(6/1~).</div>
@@ -243,12 +243,12 @@ const TOT_LINK = {
        tiktok:{ url:'https://df-us-tts-dashboard.pages.dev/', label:'닥포 틱톡샵 대시보드 ↗' } }
 };
 // 실적 관리시트(재무) — 월별 sell-in, 원화. 브랜드별 시트가 생기면 여기에 추가 (닥포는 아직 없음)
-const TOT_FIN = { UN:{ sheet:'1XxvK_y3aOaLDzZjZnZS6xLJrjvweicnU4lzsnjOM4Q8', range:'사업실적_Summary!A7:AE120' },
-                  DF:{ sheet:'1IHI8wjGUJcChzlnkvmh9vGLWChh0VQD-kc2N_zZUMKE', range:'사업실적_Summary!A7:AE120' } };
+const TOT_FIN = { UN:{ sheet:'1XxvK_y3aOaLDzZjZnZS6xLJrjvweicnU4lzsnjOM4Q8', range:'사업실적_Summary!A7:AE200' },
+                  DF:{ sheet:'1IHI8wjGUJcChzlnkvmh9vGLWChh0VQD-kc2N_zZUMKE', range:'사업실적_Summary!A7:AE200' } };
 const TOT_FCH = ['costco', 'sephora', 'amazon', 'tiktok', 'kohls', 'iworld'];
 // C열 이름(공백 빼고 소문자) → 판매채널. US 구역(「총 비용」 행 전)에서 처음 나오는 행만 쓴다
 const TOT_FIN_LBL = { amazon:'아마존매출', sephora:'세포라매출(sell-in)', costco:'코스트코매출(sell-in)', kohls:"kohl's매출(sell-in)", iworld:'아이월드(코스트코외)', tiktok:'틱톡샵매출(sell-in)' };
-const TOT = { brand:'', gran:'week', rng:'all', from:'', to:'', cur:(function(){ try { return localStorage.getItem('wyatt_cur') || 'USD'; } catch (e) { return 'USD'; } })(), daily:null, fin:{}, err:{}, at:0, loading:false };
+const TOT = { brand:'', gran:'week', rng:'all', from:'', to:'', cur:(function(){ try { return localStorage.getItem('wyatt_cur') || 'USD'; } catch (e) { return 'USD'; } })(), lines:(function(){ try { return JSON.parse(localStorage.getItem('wyatt_lines') || '{}'); } catch (e) { return {}; } })(), daily:null, fin:{}, err:{}, at:0, loading:false };
 
 function totDate_(v) {
   if (typeof v === 'number') return (v > 20000 && v < 80000) ? new Date(Date.UTC(1899, 11, 30) + Math.round(v) * 86400000).toISOString().slice(0, 10) : '';
@@ -301,20 +301,23 @@ async function totFinFetch_(src, token) {
     if (yr && mo >= 1 && mo <= 12) cols.push([j, yr + '-' + String(mo).padStart(2, '0')]);
   }
   if (cols.length !== 12) throw new Error('실적 시트 월 머리글을 못 읽었어요');
-  var rowOf = {}, totRow = null;
+  var rowOf = {}, totRow = null, ex = {}, usDone = false;
   for (var i = 2; i < rows.length; i++) {
-    var r = rows[i] || [], a = totNorm_(r[0]), c = totNorm_(r[2]);
-    if (a.indexOf('총비용') === 0) break;   // US 구역 끝
-    if (a === 'us매출(sell-in)' && !totRow) totRow = r;
+    var r = rows[i] || [], a = totNorm_(r[0]), bb = totNorm_(r[1]), c = totNorm_(r[2]);
+    if (a.indexOf('총비용') === 0) { if (!ex.cost) ex.cost = r; usDone = true; }   // US 구역 끝 = 「총 비용 (US only)」
+    if ((a === '총직접이익(sell-in)' || bb === '총직접이익(sell-in)') && !ex.direct) ex.direct = r;
+    if (usDone) continue;
+    if (a === 'us매출(sell-in)' && !totRow) { totRow = r; var nx = rows[i + 1] || []; if (totNorm_(nx[1]) === '공헌이익') ex.contrib = nx; }
     for (var ch in TOT_FIN_LBL) if (!rowOf[ch] && c === TOT_FIN_LBL[ch]) rowOf[ch] = r;
   }
   if (!totRow || !rowOf.amazon) throw new Error('실적 시트 행을 못 찾았어요 (' + (totRow ? '아마존 매출' : 'US 매출(Sell-in)') + ')');   // 없는 판매채널 행은 0으로 본다 — 합이 총합과 다르면 아래에서 알린다
-  var out = { months:{}, total:{}, bad:[] };
+  var out = { months:{}, total:{}, bad:[], extra:{} };
   cols.forEach(function(x) {
     var j = x[0], ym = x[1], o = {}, sum = 0;
     TOT_FCH.forEach(function(ch){ var v = rowOf[ch] ? totNum_(rowOf[ch][j]) : 0; o[ch] = v; sum += v; });
     var t = totNum_(totRow[j]);
     out.months[ym] = o; out.total[ym] = t;
+    out.extra[ym] = { cost: ex.cost ? totNum_(ex.cost[j]) : null, contrib: ex.contrib ? totNum_(ex.contrib[j]) : null, direct: ex.direct ? totNum_(ex.direct[j]) : null };
     if (Math.abs(sum - t) > 1) out.bad.push(ym);   // 판매채널 합 ≠ US 매출(Sell-in)
   });
   return out;
@@ -395,9 +398,23 @@ function totKpi_(b) {
   k.chg = k.prev ? k.mtd / k.prev - 1 : null;
   return k;
 }
+// 실적 시트 월 값 + 틱톡샵 — 실적 시트에 틱톡샵 값이 없는 달은 틱톡샵 원본 시트 일 매출(sell-in)을 원화로 바꿔 더한다 (민경 11/11)
+function totFinMonths_(b) {
+  var f = (TOT.fin || {})[b]; if (!f || !f.months) return null;
+  var tt = {}, m = (TOT.daily || {})[b + '|tiktok'] || {};
+  for (var d in m) { var ym = d.slice(0, 7); tt[ym] = (tt[ym] || 0) + m[d] * totFx_(d); }
+  var out = {}, raw = {};
+  for (var ym2 in f.months) {
+    var o = {}; for (var c in f.months[ym2]) o[c] = f.months[ym2][c];
+    if (!o.tiktok && tt[ym2]) { o.tiktok = tt[ym2]; raw[ym2] = 1; }
+    out[ym2] = o;
+  }
+  return { months:out, raw:raw };
+}
 // 실적 시트 KPI — 이번 달 = 오늘(KST) 달, 올해 누적 = 1월 ~ 이번 달
 function totFinKpi_(b) {
-  var f = (TOT.fin || {})[b]; if (!f || !f.months) return null;
+  var F = totFinMonths_(b); if (!F) return null;
+  var f = { months:F.months, bad:(TOT.fin[b] || {}).bad };
   var t = new Date(), y = t.getFullYear(), m = t.getMonth() + 1;
   var cur = y + '-' + String(m).padStart(2, '0'), prev = (m === 1 ? y - 1 : y) + '-' + String(m === 1 ? 12 : m - 1).padStart(2, '0');
   var sumM = function(ym){ var o = f.months[ym]; if (!o) return null; return TOT_FCH.reduce(function(s, c){ return s + (o[c] || 0); }, 0); };
@@ -419,9 +436,10 @@ function totFx_(d) { return d >= TOT_FX_CUT ? TOT_FX_NEW : TOT_FX_OLD; }
 function totWon_(v) { return v >= 1e8 ? '₩' + (v / 1e8).toFixed(2) + '억' : '₩' + Math.round(v / 1e4).toLocaleString('ko-KR') + '만'; }
 function totBoth_(v, w) { return TOT.cur === 'KRW' ? totWon_(w) + ' <span class="tot-won">(' + totUsd_(v) + ')</span>' : totUsd_(v) + ' <span class="tot-won">(' + totWon_(w) + ')</span>'; }
 function totBothT_(v, w) { return TOT.cur === 'KRW' ? totWon_(w) + ' (' + totUsd_(v) + ')' : totUsd_(v) + ' (' + totWon_(w) + ')'; }
-function totAxis_(v) { if (TOT.cur === 'KRW') return v >= 1e8 ? '₩' + (v / 1e8).toFixed(1).replace(/\.0$/, '') + '억' : v >= 1e4 ? '₩' + Math.round(v / 1e4).toLocaleString('ko-KR') + '만' : '₩' + Math.round(v);
+function totAxis_(v) { if (v < 0) return '-' + totAxis_(-v); if (TOT.cur === 'KRW') return v >= 1e8 ? '₩' + (v / 1e8).toFixed(1).replace(/\.0$/, '') + '억' : v >= 1e4 ? '₩' + Math.round(v / 1e4).toLocaleString('ko-KR') + '만' : '₩' + Math.round(v);
   return v >= 1e6 ? '$' + (v / 1e6).toFixed(1).replace(/\.0$/, '') + 'M' : v >= 1e3 ? '$' + (v / 1e3).toFixed(v >= 1e4 ? 0 : 1).replace(/\.0$/, '') + 'K' : '$' + Math.round(v); }
 function totVal_(v) {
+  if (v < 0) return '-' + totVal_(-v);
   if (TOT.cur === 'KRW') return v >= 1e8 ? (v / 1e8).toFixed(v >= 1e9 ? 1 : 2) + '억' : Math.round(v / 1e4).toLocaleString('ko-KR') + '만';
   return v >= 1e6 ? '$' + (v / 1e6).toFixed(2) + 'M' : v >= 1e3 ? '$' + (v / 1e3).toFixed(v >= 1e5 ? 0 : 1) + 'K' : '$' + Math.round(v);
 }
@@ -434,24 +452,30 @@ function totTitle_(g, p) {
 }
 function totEsc_(s) { return String(s).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
 // 막대 그래프 (keys 가 여러 개면 쌓는다). rows: [{p, v:{key:n}}]
-function totBars_(el, rows, keys, g) {
+function totBars_(el, rows, keys, g, lines) {
+  lines = lines || [];
   if (!el) return;
   if (!rows.length) { el.innerHTML = '<div class="tot-empty">' + (TOT.loading ? '불러오는 중…' : '데이터 없음') + '</div>'; return; }
-  var W = Math.max(300, el.clientWidth || 600), H = 240, L = 48, R = 8, T = 18, B = 26;
+  var W = Math.max(300, el.clientWidth || 600), H = lines.length ? 300 : 240, L = 48, R = 8, T = 18, B = 26;
   var hv = function(r, k){ return TOT.cur === 'KRW' ? ((r.w || {})[k] || 0) : (r.v[k] || 0); };
   var totU = rows.map(function(r){ return keys.reduce(function(s, k){ return s + Math.max(0, r.v[k] || 0); }, 0); });
   var tot = rows.map(function(r){ return keys.reduce(function(s, k){ return s + Math.max(0, hv(r, k)); }, 0); });
-  var max = Math.max.apply(null, tot.concat([1]));
-  var step = Math.pow(10, Math.floor(Math.log10(max / 4))), nice = [1, 2, 2.5, 5, 10].map(function(x){ return x * step; }).find(function(s){ return max / s <= 5; }) || step * 10;
+  var lv = function(o){ return o == null ? null : (TOT.cur === 'KRW' ? o.w : o.u); };
+  var lvals = []; lines.forEach(function(ln){ ln.vals.forEach(function(o){ var v = lv(o); if (v != null) lvals.push(v); }); });
+  var max = Math.max.apply(null, tot.concat(lvals).concat([1])), lo = Math.min.apply(null, lvals.concat([0]));
+  var span = max - lo, step = Math.pow(10, Math.floor(Math.log10(span / 4))), nice = [1, 2, 2.5, 5, 10].map(function(x){ return x * step; }).find(function(s){ return span / s <= 5; }) || step * 10;
+  lo = lo < 0 ? Math.floor(lo * 1.1 / nice) * nice : 0;
   var bw0 = (W - L - R) / rows.length, vlab = bw0 >= 30 ? 'h' : bw0 >= 11 ? 'v' : '';   // 막대 위 값: 넓으면 가로, 좁으면 세로, 너무 좁으면(일 90칸) 생략
   var top = Math.ceil(max * (vlab === 'v' ? 1.3 : 1.08) / nice) * nice, iw = W - L - R, ih = H - T - B, bw = iw / rows.length;
-  var y = function(v){ return T + ih - v / top * ih; };
+  var y = function(v){ return T + ih - (v - lo) / (top - lo) * ih; };
   var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img">';
-  for (var t = 0; t <= top + 1e-9; t += nice) s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(t) + '" y2="' + y(t) + '" stroke="#f0f0f0"/><text x="' + (L - 6) + '" y="' + (y(t) + 3) + '" text-anchor="end">' + totAxis_(t) + '</text>';
+  for (var t = lo; t <= top + 1e-9; t += nice) s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(t) + '" y2="' + y(t) + '" stroke="#f0f0f0"/><text x="' + (L - 6) + '" y="' + (y(t) + 3) + '" text-anchor="end">' + totAxis_(t) + '</text>';
+  if (lo < 0) s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="#cbd5e1"/>';
   var every = Math.ceil(rows.length / Math.max(1, Math.floor(iw / 44)));
   rows.forEach(function(r, i) {
     var x = L + i * bw, w = Math.max(1, bw * 0.72), x0 = x + (bw - w) / 2, acc = 0;
-    var tip = totTitle_(g, r.p) + '\n' + keys.map(function(k){ return (keys.length > 1 ? TOT_CH_NAME[k] + ' ' : '') + totBothT_(r.v[k] || 0, (r.w || {})[k] || 0); }).join('\n') + (keys.length > 1 ? '\n합계 ' + totBothT_(totU[i], keys.reduce(function(s, k){ return s + ((r.w || {})[k] || 0); }, 0)) : '');
+    var tip = totTitle_(g, r.p) + '\n' + keys.map(function(k){ return (keys.length > 1 ? TOT_CH_NAME[k] + ' ' : '') + totBothT_(r.v[k] || 0, (r.w || {})[k] || 0); }).join('\n') + (keys.length > 1 ? '\n합계 ' + totBothT_(totU[i], keys.reduce(function(s, k){ return s + ((r.w || {})[k] || 0); }, 0)) : '') +
+      lines.map(function(ln){ var o = ln.vals[i]; return o == null ? '' : '\n' + ln.label + ' ' + totBothT_(o.u, o.w); }).join('');
     s += '<g><title>' + totEsc_(tip) + '</title><rect x="' + x + '" y="' + T + '" width="' + bw + '" height="' + ih + '" fill="transparent"/>';
     keys.forEach(function(k) {
       var v = Math.max(0, hv(r, k)); if (!v) return;
@@ -465,6 +489,14 @@ function totBars_(el, rows, keys, g) {
     }
     s += '</g>';
     if (i % every === 0) s += '<text x="' + (x + bw / 2) + '" y="' + (H - 8) + '" text-anchor="middle">' + totLbl_(g, r.p) + '</text>';
+  });
+  // 선 (비용·공헌이익·직접이익) — 막대 위에 겹쳐 그리고 점 옆에 값
+  lines.forEach(function(ln) {
+    var pts = []; ln.vals.forEach(function(o, i){ var v = lv(o); if (v != null) pts.push([L + (i + 0.5) * bw, y(v), v]); });
+    if (!pts.length) return;
+    s += '<polyline fill="none" stroke="' + ln.color + '" stroke-width="2" points="' + pts.map(function(p){ return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ') + '"/>';
+    pts.forEach(function(p){ s += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3" fill="#fff" stroke="' + ln.color + '" stroke-width="2"/>' +
+      (vlab === 'h' && lines.length === 1 ? '<text class="tot-vl" style="fill:' + ln.color + '" x="' + p[0].toFixed(1) + '" y="' + (p[1] + (p[2] < 0 ? 13 : -7)).toFixed(1) + '" text-anchor="middle">' + totVal_(p[2]) + '</text>' : ''); });
   });
   el.innerHTML = s + '</svg>';
 }
@@ -540,27 +572,39 @@ function totRender_() {
   // 전체 월 매출 (채널 쌓기) — 실적 시트가 있으면 그 월 값, 없으면 채널 일별 합
   var months = {}, asOf = k ? k.asOf : '', monthsW = {}, mkeys = TOT_CH;
   var fin = (TOT.fin || {})[b];
+  var lines = [], FM = totFinMonths_(b);
   if (fin && fin.months) {
     var f0 = (TOT.from || '0000-00').slice(0, 7), f1 = (TOT.to || '9999-99').slice(0, 7);
-    mkeys = TOT_FCH.filter(function(c){ for (var ym in fin.months) if (ym >= f0 && ym <= f1 && fin.months[ym][c]) return true; return false; });
-    for (var ym in fin.months) {
+    mkeys = TOT_FCH.filter(function(c){ for (var ym in FM.months) if (ym >= f0 && ym <= f1 && FM.months[ym][c]) return true; return false; });
+    for (var ym in FM.months) {
       if (ym < f0 || ym > f1) continue;
-      var o = fin.months[ym], any = mkeys.some(function(c){ return o[c]; }); if (!any) continue;
+      var o = FM.months[ym], any = mkeys.some(function(c){ return o[c]; }); if (!any) continue;
       months[ym] = {}; monthsW[ym] = {};
       mkeys.forEach(function(c){ monthsW[ym][c] = o[c] || 0; months[ym][c] = (o[c] || 0) / totFx_(ym + '-01'); });
     }
     asOf = fk ? fk.cur + '-01' : asOf;
     document.getElementById('totMonthlyH').textContent = '전체 월 매출 (sell-in)';
-    document.getElementById('totMonthlyNote').textContent = '실적 관리시트 「사업실적_Summary」 판매채널별 sell-in 월 합계예요. 담당자가 아직 안 넣은 칸은 비어 보여요. 위 기간 필터를 따르고, 이번 달은 집계 중이에요.';
+    var rawM = Object.keys(FM.raw).filter(function(x){ return months[x]; }).sort();
+    document.getElementById('totMonthlyNote').textContent = '실적 관리시트 「사업실적_Summary」 판매채널별 sell-in 월 합계예요.' +
+      (rawM.length ? ' 틱톡샵은 실적 시트에 값이 없는 ' + rawM.map(function(x){ return +x.slice(5, 7) + '월'; }).join('·') + '을 틱톡샵 원본 시트 sell-in(순매출)으로 채웠어요.' : '') +
+      ' 비용·공헌이익·직접이익은 실적 시트 US 값이에요(틱톡샵 원본으로 채운 매출은 안 들어가요). 선을 하나만 켜면 값이 보이고, 여러 개면 막대에 마우스를 올려 보세요. 담당자가 아직 안 넣은 칸은 비어 보이고, 이번 달은 집계 중이에요.';
+    var LN = [['cost', '비용', '#dc2626'], ['contrib', '공헌이익', '#2563eb'], ['direct', '직접이익', '#059669']];
+    var ks = Object.keys(months).sort();
+    LN.forEach(function(x) {
+      if (!TOT.lines[x[0]]) return;
+      lines.push({ label:x[1], color:x[2], vals:ks.map(function(ym){ var e = (fin.extra || {})[ym]; var w = e ? e[x[0]] : null; return w == null ? null : { w:w, u:w / totFx_(ym + '-01') }; }) });
+    });
+    document.getElementById('totLineSel').innerHTML = LN.map(function(x){ return '<label style="cursor:pointer;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" ' + (TOT.lines[x[0]] ? 'checked ' : '') + 'onchange="totLine(\'' + x[0] + '\', this.checked)"><i style="background:' + x[2] + ';height:3px;width:12px;margin:0"></i>' + x[1] + '</label>'; }).join('');
   } else {
     TOT_CH.forEach(function(c){ var s = totSeries_(b, c, 'month'), sw = totSeriesW_(b, c, 'month'); for (var p in s) { (months[p] = months[p] || {})[c] = s[p]; (monthsW[p] = monthsW[p] || {})[c] = sw[p]; } });
     document.getElementById('totMonthlyH').textContent = '전체 월 매출';
+    document.getElementById('totLineSel').innerHTML = '';
     document.getElementById('totMonthlyNote').textContent = '아래 채널 일별 데이터를 쌓은 월 합계예요 (실적 관리시트 연결 전). 위 기간 필터를 따르고, 이번 달은 기준일까지 누적이에요.';
   }
   document.getElementById('totLegend').innerHTML = mkeys.map(function(c){ return '<span><i style="background:' + TOT_COLOR[c] + '"></i>' + TOT_CH_NAME[c] + '</span>'; }).join('');
   var cn = document.getElementById('totChNote');
   if (cn) cn.textContent = fin ? '채널 원본 일별 데이터라 위 실적 시트 월 매출과 기준이 달라요 (세포라는 POS sell-out).' : '';
-  totBars_(document.getElementById('totMonthly'), Object.keys(months).sort().map(function(p){ return { p:p, v:months[p], w:monthsW[p], partial: asOf && p === asOf.slice(0, 7) }; }), mkeys, 'month');
+  totBars_(document.getElementById('totMonthly'), Object.keys(months).sort().map(function(p){ return { p:p, v:months[p], w:monthsW[p], partial: asOf && p === asOf.slice(0, 7) }; }), mkeys, 'month', lines);
   // 채널별
   var today = new Date().toISOString().slice(0, 10);
   TOT_CH.forEach(function(c) {
@@ -588,6 +632,8 @@ function totPick(b, fromPop) {
   totRender_(); window.scrollTo(0, 0);
 }
 window.addEventListener('popstate', function(){ if (typeof slugBrand_ === 'function') totPick(slugBrand_(), true); });
+function totLine(k, on) { TOT.lines[k] = on; try { localStorage.setItem('wyatt_lines', JSON.stringify(TOT.lines)); } catch (e) {} totRender_(); }
+window.totLine = totLine;
 function totGran(g) { TOT.gran = g; totRender_(); }
 function totCur(c) { TOT.cur = c; try { localStorage.setItem('wyatt_cur', c); } catch (e) {} totRender_(); }
 window.totCur = totCur;
