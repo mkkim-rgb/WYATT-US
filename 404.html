@@ -89,18 +89,18 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
 <div id="tabTotal">
   <div id="totPick">
     <div class="tot-h1">US 전체 매출</div>
-    <p class="tot-sub">매출 sell-in 기준</p>
+    <p class="tot-sub">매출 sell-in 기준 (실적 관리시트)</p>
     <div class="tot-brands">
       <button class="tot-bcard" type="button" onclick="totPick('UN')">
-        <span class="tot-bname">어노브</span><span class="tot-bmeta">세포라 · 아마존 · 틱톡샵</span>
-        <span class="tot-blbl">이번 달 누적 매출</span><span class="tot-bnum" id="totBnumUN">—</span>
-        <span class="tot-blbl" style="color:#b5bac2;margin-top:10px">지난달 누적 매출</span><span class="tot-bnum tot-bnum2" id="totBlastUN">—</span>
+        <span class="tot-bname">어노브</span><span class="tot-bmeta" id="totBmetaUN">세포라 · 아마존 · 틱톡샵</span>
+        <span class="tot-blbl" id="totBl1UN">이번 달 누적 매출</span><span class="tot-bnum" id="totBnumUN">—</span>
+        <span class="tot-blbl" style="color:#b5bac2;margin-top:10px" id="totBl2UN">지난달 누적 매출</span><span class="tot-bnum tot-bnum2" id="totBlastUN">—</span>
         <span class="tot-bgo">채널별 매출 보기 →</span>
       </button>
       <button class="tot-bcard" type="button" onclick="totPick('DF')">
-        <span class="tot-bname">닥터포헤어</span><span class="tot-bmeta">세포라 · 아마존 · 틱톡샵</span>
-        <span class="tot-blbl">이번 달 누적 매출</span><span class="tot-bnum" id="totBnumDF">—</span>
-        <span class="tot-blbl" style="color:#b5bac2;margin-top:10px">지난달 누적 매출</span><span class="tot-bnum tot-bnum2" id="totBlastDF">—</span>
+        <span class="tot-bname">닥터포헤어</span><span class="tot-bmeta" id="totBmetaDF">세포라 · 아마존 · 틱톡샵</span>
+        <span class="tot-blbl" id="totBl1DF">이번 달 누적 매출</span><span class="tot-bnum" id="totBnumDF">—</span>
+        <span class="tot-blbl" style="color:#b5bac2;margin-top:10px" id="totBl2DF">지난달 누적 매출</span><span class="tot-bnum tot-bnum2" id="totBlastDF">—</span>
         <span class="tot-bgo">채널별 매출 보기 →</span>
       </button>
     </div>
@@ -115,25 +115,25 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
     <p class="tot-sub" id="totTake">—</p>
     <div id="totMsg" class="tot-msg" style="display:none;"></div>
     <div class="tot-kpis">
-      <div class="tot-kpi"><div class="l">이번 달 누적</div><div class="v" id="totKmtd">—</div></div>
-      <div class="tot-kpi"><div class="l">지난달 같은 기간</div><div class="v" id="totKprev">—</div></div>
-      <div class="tot-kpi"><div class="l">지난달 전체</div><div class="v" id="totKlast">—</div></div>
-      <div class="tot-kpi"><div class="l">올해 누적</div><div class="v" id="totKytd">—</div></div>
+      <div class="tot-kpi"><div class="l" id="totKl1">이번 달 누적</div><div class="v" id="totKmtd">—</div></div>
+      <div class="tot-kpi"><div class="l" id="totKl2">지난달 같은 기간</div><div class="v" id="totKprev">—</div></div>
+      <div class="tot-kpi"><div class="l" id="totKl3">지난달 전체</div><div class="v" id="totKlast">—</div></div>
+      <div class="tot-kpi"><div class="l" id="totKl4">올해 누적</div><div class="v" id="totKytd">—</div></div>
     </div>
     <div class="tot-card">
-      <div class="tot-card-head"><h3>전체 월 매출</h3>
-        <div class="tot-legend"><span><i style="background:#1D2847"></i>세포라</span><span><i style="background:#E0A040"></i>아마존</span><span><i style="background:#d97070"></i>틱톡샵</span></div></div>
-      <div class="tot-note">채널 매출을 쌓은 월 합계예요. 위 기간 필터를 따르고, 이번 달은 기준일까지 누적이에요.</div>
+      <div class="tot-card-head"><h3 id="totMonthlyH">전체 월 매출</h3>
+        <div class="tot-legend" id="totLegend"></div></div>
+      <div class="tot-note" id="totMonthlyNote">채널 매출을 쌓은 월 합계예요. 위 기간 필터를 따르고, 이번 달은 기준일까지 누적이에요.</div>
       <div class="tot-chart" id="totMonthly"></div>
     </div>
     <div class="tot-top" style="margin-top:18px;margin-bottom:0">
-      <div class="tot-h1" style="font-size:16px;margin:0">판매채널별 매출</div>
+      <div><div class="tot-h1" style="font-size:16px;margin:0">판매채널별 추이</div><div class="tot-note" id="totChNote" style="font-size:11px;color:#6b7280;margin-top:2px"></div></div>
       <div class="tot-seg"><button type="button" data-totg="month" onclick="totGran('month')">월</button><button type="button" data-totg="week" onclick="totGran('week')">주</button><button type="button" data-totg="day" onclick="totGran('day')">일</button></div>
     </div>
     <div class="tot-grid3">
       <div class="tot-card">
         <div class="tot-card-head"><h3>세포라</h3><span class="tot-note" id="totAsof_sephora">—</span></div>
-        <div class="tot-note">sell-in = 주별로 받는 실매출 (매장 B&amp;M + 닷컴)</div>
+        <div class="tot-note">sell-out = 세포라 POS 실매출 (매장 B&amp;M + 닷컴, 주별로 받음)</div>
         <div class="tot-chart" id="totCh_sephora"></div>
         <div class="tot-foot"><span>세부 대시보드</span><a id="totLink_sephora">—</a></div>
       </div>
@@ -145,14 +145,16 @@ body{margin:0;font-family:'Pretendard','Helvetica Neue',Arial,sans-serif;backgro
       </div>
       <div class="tot-card">
         <div class="tot-card-head"><h3>틱톡샵</h3><span class="tot-note" id="totAsof_tiktok">—</span></div>
-        <div class="tot-note">sell-in = 순매출 (반품·할인·환불 차감)</div>
+        <div class="tot-note">순매출 (반품·할인·환불 차감)</div>
         <div class="tot-chart" id="totCh_tiktok"></div>
         <div class="tot-foot"><span>세부 대시보드</span><a id="totLink_tiktok" target="_blank" rel="noopener">—</a></div>
       </div>
     </div>
     <details>
       <summary>매출 기준과 출처</summary>
-      <div><b>세포라</b> — [UN_US] RAW_매출유입_Sephora / [DF_US] 세포라 대시보드 RAW의 실매출 탭 전체 매출($). 주 단위로 들어와서 다른 채널보다 늦을 수 있어요. 닥터포헤어는 7/26부터.</div>
+      <div><b>전체 월 매출 (어노브)</b> — 실적 관리시트 UN_Anglo_summary (fin) 「사업실적_Summary」의 US 매출(Sell-in) 판매채널 행(아마존·세포라 sell-in·코스트코 sell-in·콜스 sell-in·아이월드) 월 값(원). 위 KPI도 이 값이에요. 실적 시트는 매주 월요일 담당자가 업데이트해서 이번 달은 집계 중이에요. 틱톡샵은 실적 시트에 없어서 빠져요. 달러는 원화를 아래 환율로 나눈 값이에요. 판매채널 합이 시트의 US 매출(Sell-in)과 다르면 화면에 알려요.</div>
+      <div><b>전체 월 매출 (닥터포헤어)</b> — 실적 관리시트 연결 전이라 아래 채널 일별 데이터를 더한 값이에요.</div>
+      <div><b>세포라</b> — [UN_US] RAW_매출유입_Sephora / [DF_US] 세포라 대시보드 RAW의 실매출 탭 전체 매출($). 세포라 POS 매출이라 sell-out이에요(출고 sell-in 아님). 주 단위로 들어와서 다른 채널보다 늦을 수 있어요. 닥터포헤어는 7/26부터.</div>
       <div><b>아마존</b> — 어노브: UN_US_Sales_dashboard_raw 「아마존내부_매출트래픽_RAW」 일 매출(셀러센트럴, PT). sell-in 데이터가 들어오기 전까지 sell-out이에요. 닥터포헤어: DF_Sales_dashboard_raw 「아마존_주문_RAW」 sell-in 열을 시차 일자(PT)별 합계.</div>
       <div><b>틱톡샵</b> — 어노브: 틱톡샵_RAW_데이터_UN-US 「매출_순sellout_daily」 순매출(PST, 9/29~). 닥터포헤어: DF_Sales_dashboard_raw 「틱톡_일별_RAW」 셀인(6/1~).</div>
       <div><b>원화</b> — 괄호 안 원화는 세포라 대시보드 기준 환율로 날짜별 환산 후 합계 (2026-09-01부터 1,400원, 그 전 1,500원/달러).</div>
@@ -230,8 +232,8 @@ const TOT_SRC = [
   { brand:'UN', ch:'tiktok', sheet:'1etJb43LKLdVDEFICaULk2skXZ1mIKNgvlRw8JQNCeFw', ranges:['매출_순sellout_daily!A2:F'], pick:function(v){ return totRows_(v[0], 0, 5); } }
 ];
 const TOT_CH = ['sephora', 'amazon', 'tiktok'];
-const TOT_CH_NAME = { sephora:'세포라', amazon:'아마존', tiktok:'틱톡샵' };
-const TOT_COLOR = { sephora:'#1D2847', amazon:'#E0A040', tiktok:'#d97070' };
+const TOT_CH_NAME = { sephora:'세포라', amazon:'아마존', tiktok:'틱톡샵', costco:'코스트코', kohls:'콜스', iworld:'아이월드' };
+const TOT_COLOR = { sephora:'#1D2847', amazon:'#E0A040', tiktok:'#d97070', costco:'#4C8C6A', kohls:'#8B6FB8', iworld:'#9AA3AF' };
 const TOT_BRAND = { UN:'어노브', DF:'닥터포헤어' };
 const TOT_LINK = {
   UN:{ sephora:{ url:'https://ella-yh.github.io/Unove-Sephora-Dashboard/', label:'어노브 세포라 대시보드 ↗' },
@@ -241,7 +243,12 @@ const TOT_LINK = {
        amazon:{ url:'https://df-us-dashboard.pages.dev/', label:'닥포 아마존 대시보드 ↗' },
        tiktok:{ url:'https://df-us-tts-dashboard.pages.dev/', label:'닥포 틱톡샵 대시보드 ↗' } }
 };
-const TOT = { brand:'', gran:'week', rng:'all', from:'', to:'', cur:(function(){ try { return localStorage.getItem('wyatt_cur') || 'USD'; } catch (e) { return 'USD'; } })(), daily:null, err:{}, at:0, loading:false };
+// 실적 관리시트(재무) — 월별 sell-in, 원화. 브랜드별 시트가 생기면 여기에 추가 (닥포는 아직 없음)
+const TOT_FIN = { UN:{ sheet:'1XxvK_y3aOaLDzZjZnZS6xLJrjvweicnU4lzsnjOM4Q8', range:'사업실적_Summary!A7:AE80' } };
+const TOT_FCH = ['costco', 'sephora', 'amazon', 'kohls', 'iworld'];
+// C열 이름(공백 빼고 소문자) → 판매채널. US 구역(「총 비용」 행 전)에서 처음 나오는 행만 쓴다
+const TOT_FIN_LBL = { amazon:'아마존매출', sephora:'세포라매출(sell-in)', costco:'코스트코매출(sell-in)', kohls:"kohl's매출(sell-in)", iworld:'아이월드(코스트코외)' };
+const TOT = { brand:'', gran:'week', rng:'all', from:'', to:'', cur:(function(){ try { return localStorage.getItem('wyatt_cur') || 'USD'; } catch (e) { return 'USD'; } })(), daily:null, fin:{}, err:{}, at:0, loading:false };
 
 function totDate_(v) {
   if (typeof v === 'number') return (v > 20000 && v < 80000) ? new Date(Date.UTC(1899, 11, 30) + Math.round(v) * 86400000).toISOString().slice(0, 10) : '';
@@ -278,21 +285,61 @@ async function totFetch_(src, token) {
   if (!Object.keys(m).length) throw new Error('행 없음');
   return m;
 }
+// 실적 관리시트 읽기 → { months:{'YYYY-MM':{ch:원}}, total:{'YYYY-MM':원}, bad:['YYYY-MM'...] }
+function totNorm_(s) { return String(s == null ? '' : s).replace(/\s+/g, '').toLowerCase(); }
+async function totFinFetch_(src, token) {
+  var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + src.sheet + '/values:batchGet?ranges=' + encodeURIComponent(src.range) + '&valueRenderOption=UNFORMATTED_VALUE';
+  var res = await fetch(url, { headers:{ Authorization:'Bearer ' + token } });
+  if (!res.ok) throw new Error(res.status === 403 ? '실적 시트 보기 권한 없음' : res.status === 401 ? '로그인 만료' : '실적 시트 읽기 실패 (' + res.status + ')');
+  var js = await res.json(), rows = ((js.valueRanges || [])[0] || {}).values || [];
+  var hy = rows[0] || [], hm = rows[1] || [], cols = [], yr = '';
+  for (var j = 19; j <= 30; j++) {   // T ~ AE = 올해 1~12월
+    var y = String(hy[j] == null ? '' : hy[j]).match(/(\d{4})/); if (y) yr = y[1];
+    var mo = parseInt(String(hm[j] == null ? '' : hm[j]), 10);
+    if (yr && mo >= 1 && mo <= 12) cols.push([j, yr + '-' + String(mo).padStart(2, '0')]);
+  }
+  if (cols.length !== 12) throw new Error('실적 시트 월 머리글을 못 읽었어요');
+  var rowOf = {}, totRow = null;
+  for (var i = 2; i < rows.length; i++) {
+    var r = rows[i] || [], a = totNorm_(r[0]), c = totNorm_(r[2]);
+    if (a.indexOf('총비용') === 0) break;   // US 구역 끝
+    if (a === 'us매출(sell-in)' && !totRow) totRow = r;
+    for (var ch in TOT_FIN_LBL) if (!rowOf[ch] && c === TOT_FIN_LBL[ch]) rowOf[ch] = r;
+  }
+  var miss = TOT_FCH.filter(function(ch){ return !rowOf[ch]; });
+  if (!totRow || miss.length) throw new Error('실적 시트 행을 못 찾았어요 (' + (totRow ? miss.map(function(c){ return TOT_CH_NAME[c]; }).join('·') : 'US 매출(Sell-in)') + ')');
+  var out = { months:{}, total:{}, bad:[] };
+  cols.forEach(function(x) {
+    var j = x[0], ym = x[1], o = {}, sum = 0;
+    TOT_FCH.forEach(function(ch){ var v = totNum_(rowOf[ch][j]); o[ch] = v; sum += v; });
+    var t = totNum_(totRow[j]);
+    out.months[ym] = o; out.total[ym] = t;
+    if (Math.abs(sum - t) > 1) out.bad.push(ym);   // 판매채널 합 ≠ US 매출(Sell-in)
+  });
+  return out;
+}
 async function totLoad_(force) {
   if (TOT.loading) return;
-  if (!TOT.daily) { var c = loadTabCache_('sephora_cache_total'); if (c && c.daily) { TOT.daily = c.daily; TOT.at = c.at || 0; } }
+  if (!TOT.daily) { var c = loadTabCache_('sephora_cache_total'); if (c && c.daily) { TOT.daily = c.daily; TOT.fin = c.fin || {}; TOT.at = c.at || 0; } }
   if (!force && TOT.daily && Date.now() - TOT.at < 600000 && !Object.keys(TOT.err).length) return;   // 10분 안에는 다시 읽지 않는다
   var token = sessionStorage.getItem('sephora_token');
   if (!token) { TOT.err = { all:'로그인 토큰 없음' }; return; }
   TOT.loading = true; totRender_();
-  var next = JSON.parse(JSON.stringify(TOT.daily || {})), err = {};
-  await Promise.all(TOT_SRC.map(async function(src) {
+  var next = JSON.parse(JSON.stringify(TOT.daily || {})), fin = JSON.parse(JSON.stringify(TOT.fin || {})), err = {};
+  var jobs = TOT_SRC.map(async function(src) {
     var key = src.brand + '|' + src.ch;
     try { next[key] = await totFetch_(src, token); }
     catch (e) { err[key] = e.message || String(e); console.warn('[total]', key, e); }   // 못 읽은 채널은 캐시 값을 그대로 둔다
-  }));
-  TOT.daily = next; TOT.err = err; TOT.at = Date.now(); TOT.loading = false;
-  try { localStorage.setItem('sephora_cache_total', JSON.stringify({ daily:next, at:TOT.at })); } catch (e) {}
+  });
+  Object.keys(TOT_FIN).forEach(function(b) {
+    jobs.push((async function() {
+      try { fin[b] = await totFinFetch_(TOT_FIN[b], token); }
+      catch (e) { err[b + '|fin'] = e.message || String(e); console.warn('[total] fin', b, e); }
+    })());
+  });
+  await Promise.all(jobs);
+  TOT.daily = next; TOT.fin = fin; TOT.err = err; TOT.at = Date.now(); TOT.loading = false;
+  try { localStorage.setItem('sephora_cache_total', JSON.stringify({ daily:next, fin:fin, at:TOT.at })); } catch (e) {}
 }
 // ── 집계 ──
 function totWeek_(d) { var t = new Date(d + 'T00:00:00Z'); return new Date(t.getTime() - t.getUTCDay() * 86400000).toISOString().slice(0, 10); }
@@ -345,6 +392,22 @@ function totKpi_(b) {
     }
   });
   k.chg = k.prev ? k.mtd / k.prev - 1 : null;
+  return k;
+}
+// 실적 시트 KPI — 이번 달 = 오늘(KST) 달, 올해 누적 = 1월 ~ 이번 달
+function totFinKpi_(b) {
+  var f = (TOT.fin || {})[b]; if (!f || !f.months) return null;
+  var t = new Date(), y = t.getFullYear(), m = t.getMonth() + 1;
+  var cur = y + '-' + String(m).padStart(2, '0'), prev = (m === 1 ? y - 1 : y) + '-' + String(m === 1 ? 12 : m - 1).padStart(2, '0');
+  var sumM = function(ym){ var o = f.months[ym]; if (!o) return null; return TOT_FCH.reduce(function(s, c){ return s + (o[c] || 0); }, 0); };
+  var u = function(w, ym){ return w / totFx_(ym + '-01'); };
+  var k = { cur:cur, prevYm:prev, w:{ mtd:sumM(cur) || 0, last:sumM(prev) || 0, ytd:0 } };
+  for (var ym in f.months) if (ym.slice(0, 4) === String(y) && ym <= cur) k.w.ytd += sumM(ym);
+  k.mtd = u(k.w.mtd, cur); k.last = u(k.w.last, prev);
+  k.ytd = 0; for (var ym2 in f.months) if (ym2.slice(0, 4) === String(y) && ym2 <= cur) k.ytd += u(sumM(ym2), ym2);
+  var o = f.months[prev] || {}, top = TOT_FCH.slice().sort(function(a, c){ return (o[c] || 0) < (o[a] || 0) ? -1 : 1; })[0];
+  k.top = top; k.topShare = k.w.last ? (o[top] || 0) / k.w.last : 0;
+  k.bad = f.bad || [];
   return k;
 }
 // ── 표시 ──
@@ -411,6 +474,15 @@ function totRender_() {
   if (brand) brand.style.display = b ? '' : 'none';
   var errAll = TOT.err.all;
   ['UN', 'DF'].forEach(function(x) {
+    var fk = totFinKpi_(x), l1 = document.getElementById('totBl1' + x), l2 = document.getElementById('totBl2' + x), bm = document.getElementById('totBmeta' + x);
+    if (fk) {
+      if (bm) bm.textContent = '실적 관리시트 sell-in · 판매채널 전체';
+      if (l1) l1.textContent = '이번 달 매출 (집계 중)'; if (l2) l2.textContent = '지난달 매출';
+      document.getElementById('totBnum' + x).innerHTML = totBoth_(fk.mtd, fk.w.mtd) + ' <span class="tot-bmeta">' + (+fk.cur.slice(5, 7)) + '월</span>';
+      document.getElementById('totBlast' + x).innerHTML = totBoth_(fk.last, fk.w.last) + ' <span class="tot-bmeta">' + (+fk.prevYm.slice(5, 7)) + '월</span>';
+      return;
+    }
+    if (bm) bm.textContent = '세포라 · 아마존 · 틱톡샵' + (TOT_FIN[x] ? '' : ' (채널 데이터 합 · 실적 시트 연결 전)');
     var k = TOT.daily ? totKpi_(x) : null, el = document.getElementById('totBnum' + x);
     var el2 = document.getElementById('totBlast' + x);
     if (el2) el2.innerHTML = k ? totBoth_(k.last, k.w.last) + ' <span class="tot-bmeta">' + (+k.prevYm.slice(5, 7)) + '월 전체</span>' : (TOT.loading ? '불러오는 중…' : '—');
@@ -424,7 +496,19 @@ function totRender_() {
   document.querySelectorAll('#tabTotal [data-totg]').forEach(function(x){ x.classList.toggle('on', x.dataset.totg === TOT.gran); });
   var k = TOT.daily ? totKpi_(b) : null;
   document.getElementById('totTitle').textContent = TOT_BRAND[b] + ' US 매출';
-  var take = document.getElementById('totTake');
+  var take = document.getElementById('totTake'), fk = totFinKpi_(b);
+  var setL = function(a){ for (var i = 0; i < 4; i++) document.getElementById('totKl' + (i + 1)).textContent = a[i]; };
+  if (fk) {
+    take.textContent = '실적 관리시트 sell-in 기준, ' + (+fk.prevYm.slice(5, 7)) + '월 ' + totBothT_(fk.last, fk.w.last) +
+      (fk.topShare ? ' 중 ' + TOT_CH_NAME[fk.top] + ' 비중이 ' + Math.round(fk.topShare * 100) + '%로 가장 커요.' : '.') +
+      ' ' + (+fk.cur.slice(5, 7)) + '월은 아직 집계 중이에요.';
+    setL([(+fk.cur.slice(5, 7)) + '월 매출 (집계 중)', (+fk.prevYm.slice(5, 7)) + '월 매출', '올해 누적', '참고: 이번 달 채널 일별 합' + (k ? ' (' + (+k.asOf.slice(5, 7)) + '/' + (+k.asOf.slice(8, 10)) + '까지)' : '')]);
+    document.getElementById('totKmtd').innerHTML = totBoth_(fk.mtd, fk.w.mtd);
+    document.getElementById('totKprev').innerHTML = totBoth_(fk.last, fk.w.last);
+    document.getElementById('totKlast').innerHTML = totBoth_(fk.ytd, fk.w.ytd);
+    document.getElementById('totKytd').innerHTML = k ? totBoth_(k.mtd, k.w.mtd) : '—';
+  } else {
+  setL(['이번 달 누적', '지난달 같은 기간', '지난달 전체', '올해 누적']);
   if (k) {
     var share = TOT_CH.map(function(c){ var s = 0, m = TOT.daily[b + '|' + c] || {}; for (var d in m) if (d.slice(0, 7) === k.asOf.slice(0, 7)) s += m[d]; return [c, s]; }).sort(function(a, c){ return c[1] - a[1]; });
     take.textContent = (+k.asOf.slice(5, 7)) + '월 ' + (+k.asOf.slice(8, 10)) + '일까지 ' + totBothT_(k.mtd, k.w.mtd) +
@@ -435,8 +519,11 @@ function totRender_() {
   document.getElementById('totKprev').innerHTML = k ? totBoth_(k.prev, k.w.prev) : '—';
   document.getElementById('totKlast').innerHTML = k ? totBoth_(k.last, k.w.last) : '—';
   document.getElementById('totKytd').innerHTML = k ? totBoth_(k.ytd, k.w.ytd) : '—';
+  }
   // 채널 기준일이 다르다 — 늦은 채널(세포라 주 단위)은 그 채널 화면에 기준일을 따로 적는다
   var errs = TOT_CH.filter(function(c){ return TOT.err[b + '|' + c]; }).map(function(c){ return TOT_CH_NAME[c] + ': ' + TOT.err[b + '|' + c]; });
+  if (TOT.err[b + '|fin']) errs.unshift('실적 관리시트: ' + TOT.err[b + '|fin']);
+  if (fk && fk.bad.length) errs.unshift('실적 시트 판매채널 합이 US 매출(Sell-in)과 달라요: ' + fk.bad.map(function(x){ return +x.slice(5, 7) + '월'; }).join(', '));
   var msg = document.getElementById('totMsg');
   msg.style.display = (errs.length || errAll) ? '' : 'none';
   msg.textContent = errAll ? '시트를 못 읽었어요 (' + errAll + ').' : errs.length ? '일부 채널을 새로 못 읽었어요 — ' + errs.join(' · ') + (TOT.daily ? ' (저장해 둔 값으로 보여요)' : '') : '';
@@ -449,11 +536,30 @@ function totRender_() {
   TOT_CH.forEach(function(c){ var m = (TOT.daily || {})[b + '|' + c] || {}, u = 0, w = 0; for (var d in m) if (totIn_(d)) { u += m[d]; w += m[d] * totFx_(d); } rs.u += u; rs.w += w; rs.ch[c] = [u, w]; });
   var rt = document.getElementById('totRngSum');
   if (rt) rt.innerHTML = TOT.daily ? '<b>선택 기간 합계 ' + totBoth_(rs.u, rs.w) + '</b>' + TOT_CH.map(function(c){ return '<span>' + TOT_CH_NAME[c] + ' ' + totBothT_(rs.ch[c][0], rs.ch[c][1]) + '</span>'; }).join('') : '';
-  // 전체 월 매출 (채널 쌓기)
-  var months = {}, asOf = k ? k.asOf : '';
-  var monthsW = {};
-  TOT_CH.forEach(function(c){ var s = totSeries_(b, c, 'month'), sw = totSeriesW_(b, c, 'month'); for (var p in s) { (months[p] = months[p] || {})[c] = s[p]; (monthsW[p] = monthsW[p] || {})[c] = sw[p]; } });
-  totBars_(document.getElementById('totMonthly'), Object.keys(months).sort().map(function(p){ return { p:p, v:months[p], w:monthsW[p], partial: asOf && p === asOf.slice(0, 7) }; }), TOT_CH, 'month');
+  // 전체 월 매출 (채널 쌓기) — 실적 시트가 있으면 그 월 값, 없으면 채널 일별 합
+  var months = {}, asOf = k ? k.asOf : '', monthsW = {}, mkeys = TOT_CH;
+  var fin = (TOT.fin || {})[b];
+  if (fin && fin.months) {
+    var f0 = (TOT.from || '0000-00').slice(0, 7), f1 = (TOT.to || '9999-99').slice(0, 7);
+    mkeys = TOT_FCH.filter(function(c){ for (var ym in fin.months) if (ym >= f0 && ym <= f1 && fin.months[ym][c]) return true; return false; });
+    for (var ym in fin.months) {
+      if (ym < f0 || ym > f1) continue;
+      var o = fin.months[ym], any = mkeys.some(function(c){ return o[c]; }); if (!any) continue;
+      months[ym] = {}; monthsW[ym] = {};
+      mkeys.forEach(function(c){ monthsW[ym][c] = o[c] || 0; months[ym][c] = (o[c] || 0) / totFx_(ym + '-01'); });
+    }
+    asOf = fk ? fk.cur + '-01' : asOf;
+    document.getElementById('totMonthlyH').textContent = '전체 월 매출 (sell-in)';
+    document.getElementById('totMonthlyNote').textContent = '실적 관리시트 「사업실적_Summary」 판매채널별 sell-in 월 합계예요. 틱톡샵은 실적 시트에 없어서 빠져요. 위 기간 필터를 따르고, 이번 달은 집계 중이에요.';
+  } else {
+    TOT_CH.forEach(function(c){ var s = totSeries_(b, c, 'month'), sw = totSeriesW_(b, c, 'month'); for (var p in s) { (months[p] = months[p] || {})[c] = s[p]; (monthsW[p] = monthsW[p] || {})[c] = sw[p]; } });
+    document.getElementById('totMonthlyH').textContent = '전체 월 매출';
+    document.getElementById('totMonthlyNote').textContent = '아래 채널 일별 데이터를 쌓은 월 합계예요 (실적 관리시트 연결 전). 위 기간 필터를 따르고, 이번 달은 기준일까지 누적이에요.';
+  }
+  document.getElementById('totLegend').innerHTML = mkeys.map(function(c){ return '<span><i style="background:' + TOT_COLOR[c] + '"></i>' + TOT_CH_NAME[c] + '</span>'; }).join('');
+  var cn = document.getElementById('totChNote');
+  if (cn) cn.textContent = fin ? '채널 원본 일별 데이터라 위 실적 시트 월 매출과 기준이 달라요 (세포라는 POS sell-out).' : '';
+  totBars_(document.getElementById('totMonthly'), Object.keys(months).sort().map(function(p){ return { p:p, v:months[p], w:monthsW[p], partial: asOf && p === asOf.slice(0, 7) }; }), mkeys, 'month');
   // 채널별
   var today = new Date().toISOString().slice(0, 10);
   TOT_CH.forEach(function(c) {
